@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <pthread.h>
 #include "ServerInfo.h"
 #include "File.h"
 
@@ -10,6 +11,9 @@
 
 ServerInfo *serverInfo;
 int listenFD;
+int openSockets[50];
+int contSockets;
+pthread_t threads[50];
 
 char *readLine(int fd, char delimiter) {
     char *msg = (char *) malloc(1);
@@ -30,14 +34,34 @@ char *readLine(int fd, char delimiter) {
     return msg;
 }
 
+void *run_thread(void *thread_data) {
+    int socket = *(int *) thread_data;
+    //char
+
+    //readLine(socket, '\n');
+
+
+    free(thread_data);
+
+    return socket;
+}
+
+//gcc server.c -o server -Wall -Wextra -lpthread
+// gcc client.c -o client -Wall -Wextra
 
 int main(int argc, char *argv[]) {
     int correct;
+    pthread_t thread;
     struct sockaddr_in servidor;
 
 
     if (argc == 2) {
+        contSockets = 0;
+
         serverInfo = (ServerInfo *) malloc(sizeof(ServerInfo));
+
+        write(STDOUT_FILENO, "SERVIDOR ATREIDES\n",
+              sizeof(char) * strlen("SERVIDOR ATREIDES\n"));
 
         correct = readConfigFile(argv[1], serverInfo, ATREIDES_CONFIG);
 
@@ -62,8 +86,8 @@ int main(int argc, char *argv[]) {
                 printF("Error fent el listen\n");
             }
 
-            while (1) {
 
+            while (1) {
 
 
 

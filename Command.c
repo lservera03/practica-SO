@@ -28,6 +28,38 @@ int executeCommand(char string[]) {
             //  write(STDOUT_FILENO, "Comanda KO. Parametres incorrectes\n",
             //      sizeof(char) * strlen("Comanda KO. Parametres incorrectes\n"));
             //} else {
+
+            /*
+             ServerInfo serverinfo;
+    struct sockaddr_in s_addr;
+    int fd;
+
+    bzero(config.IP, sizeof(config.IP));
+    config.port = -1;
+
+    if(!readConfig(&config)){
+        print("ERROR: fichero de configuracion erroneo o inexistente\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fd = socket(AF_INET,SOCK_STREAM, 0);
+    if(fd < 0){
+        print("ERROR: crear socket del cliente\n");
+        exit(-1);
+    }
+
+    memset(&s_addr, 0, sizeof(s_addr));
+    s_addr.sin_family = AF_INET;
+    s_addr.sin_port = htons(config.port);
+    s_addr.sin_addr.s_addr = inet_addr(config.IP);
+
+    if (connect(fd, (void *)&s_addr, sizeof(s_addr)) < 0){
+        print("ERROR: connect del cliente\n");
+        close(fd);
+        exit(-1);
+    }
+             */
+
             write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
             //}
         } else {
