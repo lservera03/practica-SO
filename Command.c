@@ -22,9 +22,7 @@ int executeCommand(char string[]) {
 
     upper[i] = '\0';
 
-    if (upper[0] == '\0') {
-
-    } else {
+    if (upper[0] != '\0') {
 
 
         if (strcmp(upper, "LOGIN") == 0) {
@@ -111,6 +109,7 @@ int executeCommand(char string[]) {
             } else {
                 freeMemoryCommand();
                 write(1, "ERROR al crear el fork\n", sizeof("ERROR al crear el fork\n"));
+
             }
         }
     }
