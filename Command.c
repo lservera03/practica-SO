@@ -28,16 +28,16 @@ int executeCommand(char string[]) {
         if (strcmp(upper, "LOGIN") == 0) {
             if (command->num_arguments == 3) {
 
-                //printF("STRING");
-                //printF(command->arguments[2]);
+                char *ptr = command->arguments[2];
 
-                //Comprobar codi postal correcte
-                //if (checkIfIsNumber(&command->arguments[2])) {
-                write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                //} else {
-                //  printF("ERROR: El codi postal ha de ser un numero\n");
-                //}
+                strtol(ptr, &ptr, 10);
 
+                if (*ptr == '\0'){
+                    write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
+                } else {
+                    printF("ERROR: El codi postal ha de ser un numero\n");
+
+                }
 
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
