@@ -27,12 +27,17 @@ int executeCommand(char string[]) {
 
         if (strcmp(upper, "LOGIN") == 0) {
             if (command->num_arguments == 3) {
-                //TODO check if the order of the arguments is correct
 
+                //printF("STRING");
+                //printF(command->arguments[2]);
 
-
-
+                //Comprobar codi postal correcte
+                //if (checkIfIsNumber(&command->arguments[2])) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
+                //} else {
+                //  printF("ERROR: El codi postal ha de ser un numero\n");
+                //}
+
 
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
@@ -144,7 +149,7 @@ int countArguments(char string[]) {
     while (splited != NULL) {
         splited = strtok(NULL, " ");
 
-        counter++;;
+        counter++;
     }
 
     return counter;
@@ -204,6 +209,26 @@ void freeMemoryCommand() {
     }
 
 }
+
+
+int checkIfIsNumber(char *string[]) {
+    char character;
+    int i = 0;
+
+    printF(*string);
+
+    do {
+        character = *string[i];
+        if (character < 48 || character > 57) {
+            return 0;
+        }
+        i++;
+    } while (character != '\n' && character != '\0');
+
+
+    return 1;
+}
+
 
 
 

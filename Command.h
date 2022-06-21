@@ -21,6 +21,8 @@ void createCommand(char string[]);
 
 void freeMemoryCommand();
 
+int checkIfIsNumber(char *string[]);
+
 
 
 #endif //PRACTICA_COMMAND_H
