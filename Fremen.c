@@ -9,7 +9,10 @@
 #include "Command.h"
 
 
+#define printF(x) write(1, x, strlen(x))
+
 ServerInfo *serverInfo;
+
 
 void end() {
 
@@ -18,7 +21,7 @@ void end() {
     }
     freeMemoryCommand();
 
-    raise(SIGINT);
+    //raise(SIGINT);
 }
 
 
@@ -67,8 +70,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        free(buffer);
-        free(serverInfo);
+        raise(SIGINT);
 
     } else if (argc < 2) {
         write(STDERR_FILENO, "NO has introduit els arguments necessaris",
