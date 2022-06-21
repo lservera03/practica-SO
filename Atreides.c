@@ -1,11 +1,4 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <pthread.h>
-#include "ServerInfo.h"
-#include "File.h"
+#include "Atreides.h"
 
 #define printF(x) write(1, x, strlen(x))
 
@@ -43,7 +36,7 @@ void *run_thread(void *thread_data) {
 
     free(thread_data);
 
-    return socket;
+    return NULL;
 }
 
 //gcc server.c -o server -Wall -Wextra -lpthread
@@ -96,11 +89,11 @@ int main(int argc, char *argv[]) {
         }
 
     } else if (argc < 2) {
-        write(STDERR_FILENO, "NO has introduit els arguments necessaris",
-              sizeof(char) * strlen("NO has introduit els arguments necessaris"));
+        write(STDERR_FILENO, "NO has introduit els arguments necessaris\n",
+              sizeof(char) * strlen("NO has introduit els arguments necessaris\n"));
     } else {
-        write(STDERR_FILENO, "Has introduit massa arguments",
-              sizeof(char) * strlen("Has introduit massa arguments"));
+        write(STDERR_FILENO, "Has introduit massa arguments\n",
+              sizeof(char) * strlen("Has introduit massa arguments\n"));
     }
 
 
