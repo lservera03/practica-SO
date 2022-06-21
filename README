@@ -1,0 +1,4 @@
+make
+
+./Fremen.exe config.txt
+

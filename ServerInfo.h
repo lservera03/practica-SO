@@ -13,7 +13,4 @@ typedef struct {
     char directory[MAX_DIRECTORY_STRING];
 } ServerInfo;
 
-
-
-
 #endif //PRACTICA_SERVERINFO_H

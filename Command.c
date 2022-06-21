@@ -88,6 +88,7 @@ int executeCommand(char string[]) {
 
                 wait(NULL);
 
+
                 freeMemoryCommand();
             } else if (fill == 0) {
 
@@ -103,15 +104,18 @@ int executeCommand(char string[]) {
                 //Execute command and check if it's correct
                 if (execvp(args[0], args) < 0) {
                     write(1, "ERROR al ejecutar el comando\n", sizeof("ERROR al ejecutar el comando\n"));
+
                 }
+                /** free memory when wrong comand*/
+               /*
+                freeMemoryCommand();*/
 
-
-                freeMemoryCommand();
                 command->num_arguments = -1;
 
 
                 return -1;
             } else {
+
                 freeMemoryCommand();
                 write(1, "ERROR al crear el fork\n", sizeof("ERROR al crear el fork\n"));
 
