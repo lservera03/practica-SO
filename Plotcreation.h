@@ -25,6 +25,16 @@ typedef struct {
 
 char *tramaStartConexion(char *name, char *codipostal);
 
+char *tramaFinishConeixion(char *name, char *id);
+
+char *tramaSearch(char *name, char *id, char *codipostal);
+
+char *tramaSearchPicture(char *nameFichero, char *size , char *MD5SUM);
+
+char *tramaPhotoPeticion(char *id);
+
+char *sendDataPhoto(char *dadesBinarias);
+
 char *createOrigin(char string[]);
 
 
