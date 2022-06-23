@@ -35,7 +35,7 @@ void create_connection_atreides() {
 
 int executeCommand(char string[], ServerInfo *serverInfo) {
     char upper[50];
-    char *trama;
+    char *frame;
     //TODO CAMBIAR id SOCKET
     char *id = NULL;
     // todo poner valor a size del fichero y MD5SUM
@@ -73,8 +73,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                     write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
 
-                    trama = tramaStartConexion(command->arguments[1], command->arguments[2]);
-
                     if (*ptr == '\0') {
                         //TODO check if there is already a user logged in.
 
@@ -82,6 +80,13 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                         create_connection_atreides();
                         //Check if the socket is correct
                         if (atreides_fd != -1) {
+
+                            frame = tramaStartConexion(command->arguments[1], command->arguments[2]);
+
+                            //Enviar trama solicitant connexió
+                            write(atreides_fd, frame, 256);
+
+
 
 
                         } else {

@@ -11,8 +11,9 @@
 #include <pthread.h>
 #include "ServerInfo.h"
 #include "File.h"
-
-
+#include "Frame.h"
+#include "UserManagement.h"
+#include <arpa/inet.h>
 
 
 #endif

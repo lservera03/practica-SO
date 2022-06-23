@@ -1,8 +1,8 @@
-
 #include "Plotcreation.h"
 #include "stdio.h"
 
 #define printF(x) write(1, x, strlen(x))
+
 
 
 char *createOrigin(char string[]) {
@@ -16,6 +16,7 @@ char *createOrigin(char string[]) {
 
     return trama;
 }
+
 
 char *completeDataTrama(char *trama, char *dades) {
 
@@ -41,6 +42,7 @@ char *tramaStartConexion(char *nom, char *codipostal) {
 
     trama = completeDataTrama(trama, dades);
 
+
     return trama;
 }
 
@@ -58,6 +60,7 @@ char *tramaFinishConeixion(char *name, char *id) {
     return trama;
 }
 
+
 char *tramaSearch(char *name, char *id, char *codipostal) {
     char *trama;
     char *dades = (char *) malloc(sizeof(name) + sizeof(id) + sizeof(codipostal));
@@ -71,6 +74,7 @@ char *tramaSearch(char *name, char *id, char *codipostal) {
 
     return trama;
 }
+
 
 char *tramaSearchPicture(char *nameFichero, char *size, char *MD5SUM) {
     char *trama;

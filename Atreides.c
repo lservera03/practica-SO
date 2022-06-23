@@ -1,4 +1,3 @@
-#include <arpa/inet.h>
 #include "Atreides.h"
 
 #define printF(x) write(1, x, strlen(x))
@@ -28,24 +27,41 @@ char *readLine(int fd, char delimiter) {
     return msg;
 }
 
-void *run_thread(void *thread_data) {
-    //int socket = *(int *) thread_data;
-    //char
 
-    //readLine(socket, '\n');
+void login_user(int fd, Frame frame) {
+
+    //TODO split frame.data to get username
+
+    //TODO check if the user is already registered
+
+    //TODO If not, register user
+
+    //TODO write response
+
+}
 
 
-    free(thread_data);
+void *run_thread(void *fd_client) {
+    int fd = *((int *) fd_client);
+    char frame_string[256];
+    Frame frame;
+
+    read(fd, frame_string, (sizeof(char) * 256));
+
+    frame = createFrameFromString(frame_string);
+
+    switch (frame.type) {
+        case 'C': //LOGIN
+            login_user(fd, frame);
+            break;
+    }
+
 
     return NULL;
 }
 
-//gcc server.c -o server -Wall -Wextra -lpthread
-// gcc client.c -o client -Wall -Wextra
-
 int main(int argc, char *argv[]) {
     int correct;
-    //pthread_t thread;
     struct sockaddr_in servidor;
 
 
