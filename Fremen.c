@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
                 buffer[i] = '\0';
 
-                exit = executeCommand(buffer);
+                exit = executeCommand(buffer, serverInfo);
 
                 i = 0;
                 buffer[0] = '\0';

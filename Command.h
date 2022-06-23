@@ -6,15 +6,21 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "ServerInfo.h"
 #include <sys/wait.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include "Plotcreation.h"
 
-typedef struct{
+typedef struct {
     char **arguments;
     int num_arguments;
 } Command;
 
 
-int executeCommand(char string[]);
+void create_connection_atreides();
+
+int executeCommand(char string[], ServerInfo *serverInfo);
 
 
 void createCommand(char string[]);
@@ -22,7 +28,6 @@ void createCommand(char string[]);
 void freeMemoryCommand();
 
 int checkIfIsNumber(char *string[]);
-
 
 
 #endif //PRACTICA_COMMAND_H

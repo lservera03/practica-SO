@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include "Atreides.h"
 
 #define printF(x) write(1, x, strlen(x))
@@ -28,7 +29,7 @@ char *readLine(int fd, char delimiter) {
 }
 
 void *run_thread(void *thread_data) {
-    int socket = *(int *) thread_data;
+    //int socket = *(int *) thread_data;
     //char
 
     //readLine(socket, '\n');
@@ -44,7 +45,7 @@ void *run_thread(void *thread_data) {
 
 int main(int argc, char *argv[]) {
     int correct;
-    pthread_t thread;
+    //pthread_t thread;
     struct sockaddr_in servidor;
 
 
@@ -62,14 +63,14 @@ int main(int argc, char *argv[]) {
             write(STDOUT_FILENO, "Llegit el fitxer de configuració\n",
                   sizeof(char) * strlen("Llegit el fitxer de configuració\n"));
 
-            if ((listenFD = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+            if ((listenFD = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
                 printF("Error creant el socket\n");
             }
 
             bzero(&servidor, sizeof(servidor));
-            servidor.sin_port = htons(serverInfo->port);
+            servidor.sin_port = htons(8700); //Falla al posar-ho serverInfo-port
             servidor.sin_family = AF_INET;
-            servidor.sin_addr.s_addr = htonl(INADDR_ANY);
+            servidor.sin_addr.s_addr = htons(INADDR_ANY);
 
             if (bind(listenFD, (struct sockaddr *) &servidor, sizeof(servidor)) < 0) {
                 printF("Error fent el bind\n");

@@ -23,7 +23,8 @@ typedef struct {
 } Frame;
 
 
-char *tramaStartConexion(char *name , char *codipostal);
+char *tramaStartConexion(char *name, char *codipostal);
+
 char *createOrigin(char string[]);
-void readFrame(const char *frame);
+
 

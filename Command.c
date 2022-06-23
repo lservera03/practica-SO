@@ -1,19 +1,46 @@
 #include "Command.h"
-#include "Plotcreation.h"
+
 
 #define printF(x) write(1, x, strlen(x))
 
 
-
-
 Command *command;
+int atreides_fd, isLogged;
+ServerInfo *server_info;
 
-int executeCommand(char string[]) {
+void create_connection_atreides() {
+    struct sockaddr_in s_addr;
+
+    //Create socket
+    atreides_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (atreides_fd < 0) {
+        printF("ERROR: NO s'ha pogut crear el socket\n");
+    }
+
+    //Config socket
+    memset(&s_addr, 0, sizeof(s_addr));
+    s_addr.sin_family = AF_INET;
+    s_addr.sin_port = htons(server_info->port);
+    s_addr.sin_addr.s_addr = inet_addr(server_info->ip);
+
+    //Connect to Atreides by the socket created
+    if (connect(atreides_fd, (void *) &s_addr, sizeof(s_addr)) < 0) {
+        printF("ERROR: NO s'ha pogut connectar al socket\n");
+        close(atreides_fd);
+        atreides_fd = -1;
+    }
+
+}
+
+int executeCommand(char string[], ServerInfo *serverInfo) {
     char upper[50];
     char *trama;
+
     int i = 0, exit;
 
     exit = 0;
+
+    server_info = serverInfo;
 
     createCommand(string);
 
@@ -35,11 +62,25 @@ int executeCommand(char string[]) {
 
                 strtol(ptr, &ptr, 10);
 
-                if (*ptr == '\0'){
+                if (*ptr == '\0') {
 
                     write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
 
-                    trama = tramaStartConexion(command->arguments[1] , command->arguments[2]);
+                    trama = tramaStartConexion(command->arguments[1], command->arguments[2]);
+
+                    if (*ptr == '\0') {
+                        //TODO check if there is already a user logged in.
+
+
+                        create_connection_atreides();
+                        //Check if the socket is correct
+                        if (atreides_fd != -1) {
+
+
+                        } else {
+                            printF("ERROR: NO s'ha pogut connectar amb Atreides\n");
+                        }
+                    }
 
                 } else {
                     printF("ERROR: El codi postal ha de ser un numero\n");
@@ -114,8 +155,8 @@ int executeCommand(char string[]) {
 
                 }
                 /** free memory when wrong comand*/
-               /*
-                freeMemoryCommand();*/
+                /*
+                 freeMemoryCommand();*/
 
                 command->num_arguments = -1;
 
