@@ -1,13 +1,16 @@
 #include "Command.h"
+#include "Plotcreation.h"
 
 #define printF(x) write(1, x, strlen(x))
+
+
 
 
 Command *command;
 
 int executeCommand(char string[]) {
     char upper[50];
-
+    char *trama;
     int i = 0, exit;
 
     exit = 0;
@@ -33,10 +36,13 @@ int executeCommand(char string[]) {
                 strtol(ptr, &ptr, 10);
 
                 if (*ptr == '\0'){
+
                     write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
+
+                    trama = tramaStartConexion(command->arguments[1] , command->arguments[2]);
+
                 } else {
                     printF("ERROR: El codi postal ha de ser un numero\n");
-
                 }
 
             } else {
@@ -46,6 +52,7 @@ int executeCommand(char string[]) {
         } else if (strcmp(upper, "SEARCH") == 0) {
             if (command->num_arguments == 2) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
+
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
                       sizeof(char) * strlen("Comanda KO. Falta paràmetres\n"));
@@ -122,6 +129,7 @@ int executeCommand(char string[]) {
             }
         }
     }
+
     return exit;
 }
 

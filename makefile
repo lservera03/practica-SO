@@ -5,8 +5,10 @@ file.o: File.c File.h ServerInfo.h
 	gcc -c File.c
 command.o: Command.c Command.h
 	gcc -c Command.c
-fremen: fremen.o file.o command.o 
-	gcc Fremen.o File.o Command.o -o Fremen.exe
+plotcreation.o: Plotcreation.c Plotcreation.h
+	gcc -c Plotcreation.c
+fremen: fremen.o file.o command.o plotcreation.o
+	gcc Fremen.o File.o Command.o Plotcreation.o -o Fremen.exe
 atreides.o: Atreides.c Atreides.h File.h
 	gcc -c Atreides.c
 atreides: atreides.o
