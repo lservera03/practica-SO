@@ -7,6 +7,30 @@ int listenFD, num_connections;
 Connection *open_connections;
 Users *users;
 
+
+void RSI_SIGINT(){
+
+	
+	//TODO here free all memory and try to keep system stable
+
+	
+
+	//save users
+	writeUsers(users);
+	
+	//Close socket
+	close(listenFD);
+
+
+	//set default RSI for SIGINT
+	signal(SIGINT, SIG_DFL);
+	//send SIGINT and let the default RSI handle it
+	raise(SIGINT);
+
+}
+
+
+
 char *readLine(int fd, char delimiter) {
     char *msg = (char *) malloc(1);
     char current;
@@ -27,29 +51,50 @@ char *readLine(int fd, char delimiter) {
 }
 
 
+void add_user(User user){
+	
+
+	//Make space for the new user
+	users->registered_users = (User *) realloc(users->registered_users, (((users->last_id + 1)) * sizeof(User)));
+
+
+	//Save new user
+	users->registered_users[users->last_id].id = user.id;
+	strcpy(users->registered_users[users->last_id].postal_code, user.postal_code);
+	users->registered_users[users->last_id].username = (char *) malloc(sizeof(char) * strlen(user.username));
+	strcpy(users->registered_users[users->last_id].username, user.username);
+
+	//Add +1 to the user counter
+	users->last_id = (users->last_id + 1);
+	
+}
+
+
 void login_user(Frame frame) {
-    int exit = 0, found = 0;
+    int exit = 0, found = 0, i = 0, id_user;
 	//char *trama;
 	char string_output[100];
+	User user;
+	char *parameters[2];
 
     //split frame.data to get username
-    char *username = strtok(frame.data, "*");
+    char *p = strtok (frame.data, "*");
+    
+   	while (p != NULL){
+       	parameters[i++] = p;
+       	p = strtok (NULL, "*");
+   	}
+			
 
-    users = (Users *) malloc(sizeof(Users));
+	sprintf(string_output, "Rebut login %s %s\n", parameters[0], parameters[1]);
 
-    readUsers(users);
+	printF(string_output);
 
     //Check if the user is already registered
     for (int i = 0; i < users->last_id && !exit; i++) {
-        if (strcmp(users->registered_users[i].username, username) == 0) { //The user exists
+        if (strcmp(users->registered_users[i].username, parameters[0]) == 0) { //The user exists
 
-			//trama = tramaConnectionCreated(users->registered_users[i].id);
-
-			sprintf(string_output, "Assignat a ID %d", users->registered_users[i].id);
-
-			printF(string_output);
-
-			//TODO send response
+			id_user = users->registered_users[i].id;
 
             exit = 1;
             found = 1;
@@ -58,17 +103,29 @@ void login_user(Frame frame) {
 
     if (found == 0) { //The user is new
 
-        //TODO create user
-        printF("Usuario no existe!");
+		
+		//create new user
+		user.id = (users->last_id + 1);
 
-        //TODO register user
+		id_user = user.id;
+
+		strcpy(user.postal_code, parameters[1]);
+		user.username = (char *) malloc(sizeof(char) * strlen(parameters[0]));
+		strcpy(user.username, parameters[0]);
 
 
-        //TODO send response
-
+		add_user(user);
 
     }
 
+
+	sprintf(string_output, "Assignat a ID %d\n", id_user);
+
+	printF(string_output);
+
+	//TODO send response
+
+	//trama = tramaConnectionCreated(users->registered_users[i].id);
 
 }
 
@@ -90,7 +147,8 @@ void *run_thread(void *fd_client) {
     }
 
 
-    return NULL;
+    
+	return NULL;
 }
 
 int main(int argc, char *argv[]) {
@@ -100,6 +158,9 @@ int main(int argc, char *argv[]) {
 
 
     if (argc == 2) {
+		
+		//Assign SIGINT management to our function
+		signal(SIGINT, (void *) RSI_SIGINT);
 
         serverInfo = (ServerInfo *) malloc(sizeof(ServerInfo));
 
@@ -129,6 +190,11 @@ int main(int argc, char *argv[]) {
                 printF("Error fent el listen\n");
             }
 
+			
+			//read users
+			users = (Users *) malloc(sizeof(Users));
+		    readUsers(users);
+
 
             while (1) {
                 printF("Esperant connexions...\n");
@@ -137,8 +203,6 @@ int main(int argc, char *argv[]) {
                     //Create thread for every client
                     pthread_t threadClient;
                     pthread_create(&threadClient, NULL, run_thread, &clientFD);
-
-                    printF("Se ha conectado alguien!\n");
 
                 } else {
                     printF("ERROR on accept");
@@ -158,5 +222,8 @@ int main(int argc, char *argv[]) {
               sizeof(char) * strlen("Has introduit massa arguments\n"));
     }
 
+	
+	raise(SIGINT);
 
+    return 0;
 }

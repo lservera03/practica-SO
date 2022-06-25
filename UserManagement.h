@@ -23,7 +23,9 @@ typedef struct {
 } Users;
 
 
-void readUsers(Users * users);
+void readUsers(Users *users);
+
+void writeUsers(Users *users);
 
 
 

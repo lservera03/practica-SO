@@ -92,3 +92,37 @@ void readUsers(Users *users) {
 
 }
 
+
+
+void writeUsers(Users *users){
+	char write_string[100];
+    int write_fd;
+
+    //OPen file
+    write_fd = open(USERS_FILE_ROUTE, O_CREAT | O_RDWR, 0666);
+
+    if (write_fd < 0) {
+        printF("NO s'ha pogut obrir el fitxer d'usuaris\n");
+//        raise(SIGINT);
+    } else {
+
+        //Write last id given
+        sprintf(write_string, "%d\n", users->last_id);
+        write(write_fd, write_string, sizeof(char) * strlen(write_string));
+
+		//Write every user into the file
+        for (int i = 0; i < users->last_id; i++) {
+            sprintf(write_string, "%d,%s,%s\n", users->registered_users[i].id, users->registered_users[i].username, users->registered_users[i].postal_code);
+            write(write_fd, write_string, sizeof(char) * strlen(write_string));
+//            memset(cadena, 0, strlen(cadena));
+  //          memset(cadena, 0, strlen(cadena));
+        }
+
+        close(write_fd);
+    }
+	
+
+}
+
+
+
