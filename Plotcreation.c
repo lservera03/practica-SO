@@ -46,6 +46,29 @@ char *tramaStartConexion(char *nom, char *codipostal) {
     return trama;
 }
 
+char *tramaConnectionCreated(int id) {
+    char *trama;
+	char aux[20];
+
+
+	//Know the length of the integer to create string with that size
+	int id_length = sprintf(aux, "%d", id);
+
+	char *dades = (char *) malloc(id_length);
+
+    trama = createOrigin("ATREIDES");
+    trama[15] = 'O';
+
+    sprintf(dades, "%d", id);
+  
+    trama = completeDataTrama(trama, dades);
+  
+	
+    return trama;
+}
+
+
+
 char *tramaFinishConeixion(char *name, char *id) {
     char *trama;
     char *dades = (char *) malloc(sizeof(name) + sizeof(id));

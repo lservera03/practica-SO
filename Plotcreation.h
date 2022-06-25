@@ -16,14 +16,10 @@
 #include "ServerInfo.h"
 #include "File.h"
 
-typedef struct {
-    char origin[15];
-    char type;
-    char data[240];
-} Frame;
-
 
 char *tramaStartConexion(char *name, char *codipostal);
+
+char *tramaConnectionCreated(int id);
 
 char *tramaFinishConeixion(char *name, char *id);
 

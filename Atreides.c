@@ -29,22 +29,27 @@ char *readLine(int fd, char delimiter) {
 
 void login_user(Frame frame) {
     int exit = 0, found = 0;
+	//char *trama;
+	char string_output[100];
 
     //split frame.data to get username
     char *username = strtok(frame.data, "*");
-
 
     users = (Users *) malloc(sizeof(Users));
 
     readUsers(users);
 
-
     //Check if the user is already registered
     for (int i = 0; i < users->last_id && !exit; i++) {
         if (strcmp(users->registered_users[i].username, username) == 0) { //The user exists
 
-            //TODO send response
-            printF("Usuario existe!");
+			//trama = tramaConnectionCreated(users->registered_users[i].id);
+
+			sprintf(string_output, "Assignat a ID %d", users->registered_users[i].id);
+
+			printF(string_output);
+
+			//TODO send response
 
             exit = 1;
             found = 1;
@@ -71,9 +76,10 @@ void login_user(Frame frame) {
 void *run_thread(void *fd_client) {
     int fd = *((int *) fd_client);
     char frame_string[256];
-    Frame frame;
+	Frame frame;
 
     read(fd, frame_string, (sizeof(char) * 256));
+
 
     frame = createFrameFromString(frame_string);
 

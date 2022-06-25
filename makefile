@@ -13,8 +13,8 @@ plotcreation.o: Plotcreation.c Plotcreation.h
 	gcc -c Plotcreation.c -Wall -Wextra
 fremen: fremen.o file.o command.o plotcreation.o
 	gcc Fremen.o File.o Command.o Plotcreation.o -o Fremen.exe -Wall -Wextra
-atreides.o: Atreides.c Atreides.h File.h Frame.h Connection.h UserManagement.h
+atreides.o: Atreides.c Atreides.h File.h Frame.h Connection.h UserManagement.h Plotcreation.h
 	gcc -c Atreides.c -Wall -Wextra
-atreides: atreides.o file.o frame.o userManagement.o
-	gcc Atreides.o File.o Frame.o UserManagement.o -o Atreides.exe -Wall -Wextra -lpthread
+atreides: atreides.o file.o frame.o userManagement.o plotcreation.o
+	gcc Atreides.o File.o Frame.o UserManagement.o Plotcreation.o -o Atreides.exe -Wall -Wextra -lpthread
 
