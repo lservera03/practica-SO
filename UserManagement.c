@@ -1,14 +1,18 @@
 #include "UserManagement.h"
 
+#define printF(x) write(1, x, strlen(x))
 
-User getUserByString(char *username) {
-    int fd, i, positions, final, found = 0;
+
+void readUsers(Users *users) {
+    int fd, i, positions, final, num_users = 0, counter = 0;
     char character;
     char *buffer = NULL;
     User user;
 
     i = 0;
     positions = 1;
+
+    //TODO check if the file exists, if not create
 
     fd = open(USERS_FILE_ROUTE, O_RDONLY, 0666);
 
@@ -23,23 +27,45 @@ User getUserByString(char *username) {
 
                 buffer[i] = '\0';
 
-                switch (positions) {
-                    case 1:
-                        user.id = atoi(buffer);
-                        break;
-                    case 2:
-                        strcpy(user.username, buffer);
-                        break;
-                    case 3:
-                        strcpy(user.postal_code, buffer);
-                        break;
+                if (num_users == 0) {
+                    num_users = atoi(buffer);
+
+                    users->last_id = num_users;
+
+
+                    users->registered_users = (User *) malloc(sizeof(User) * num_users);
+
+
+                } else {
+                    switch (positions) {
+                        case 1:
+                            user.id = atoi(buffer);
+                            break;
+                        case 2:
+                            user.username = (char *) malloc(sizeof(char) * strlen(buffer));
+                            strcpy(user.username, buffer);
+                            break;
+                        case 3:
+                            strcpy(user.postal_code, buffer);
+                            break;
+                    }
+
+
+                    positions++;
                 }
 
-                positions++;
 
-                //Si em trobat l'usuari, el retornem
-                if (strcmp(user.username, username) == 0) {
-                    return user;
+                if (positions == 4) {
+                    //Save new user
+
+                    users->registered_users[counter].id = user.id;
+                    strcpy(users->registered_users[counter].postal_code, user.postal_code);
+					users->registered_users[counter].username = (char *) malloc(sizeof(char) * strlen(user.username));
+                    strcpy(users->registered_users[counter].username, user.username);
+
+
+                    counter++;
+                    positions = 1;
                 }
 
 
@@ -56,11 +82,13 @@ User getUserByString(char *username) {
         close(fd);
         free(buffer);
     } else {
+
+        users->last_id = -1;
+
         write(STDERR_FILENO, "NO s'ha pogut obrir el fitxer d'usuaris\n",
               sizeof(char) * strlen("NO s'ha pogut obrir el fitxer\n"));
     }
 
 
-    return NULL;
 }
 

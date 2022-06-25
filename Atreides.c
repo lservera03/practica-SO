@@ -3,10 +3,9 @@
 #define printF(x) write(1, x, strlen(x))
 
 ServerInfo *serverInfo;
-int listenFD;
-int openSockets[50];
-int contSockets;
-pthread_t threads[50];
+int listenFD, num_connections;
+Connection *open_connections;
+Users *users;
 
 char *readLine(int fd, char delimiter) {
     char *msg = (char *) malloc(1);
@@ -28,15 +27,43 @@ char *readLine(int fd, char delimiter) {
 }
 
 
-void login_user(int fd, Frame frame) {
+void login_user(Frame frame) {
+    int exit = 0, found = 0;
 
-    //TODO split frame.data to get username
+    //split frame.data to get username
+    char *username = strtok(frame.data, "*");
 
-    //TODO check if the user is already registered
 
-    //TODO If not, register user
+    users = (Users *) malloc(sizeof(Users));
 
-    //TODO write response
+    readUsers(users);
+
+
+    //Check if the user is already registered
+    for (int i = 0; i < users->last_id && !exit; i++) {
+        if (strcmp(users->registered_users[i].username, username) == 0) { //The user exists
+
+            //TODO send response
+            printF("Usuario existe!");
+
+            exit = 1;
+            found = 1;
+        }
+    }
+
+    if (found == 0) { //The user is new
+
+        //TODO create user
+        printF("Usuario no existe!");
+
+        //TODO register user
+
+
+        //TODO send response
+
+
+    }
+
 
 }
 
@@ -52,7 +79,7 @@ void *run_thread(void *fd_client) {
 
     switch (frame.type) {
         case 'C': //LOGIN
-            login_user(fd, frame);
+            login_user(frame);
             break;
     }
 
@@ -61,12 +88,12 @@ void *run_thread(void *fd_client) {
 }
 
 int main(int argc, char *argv[]) {
+    int clientFD;
     int correct;
     struct sockaddr_in servidor;
 
 
     if (argc == 2) {
-        contSockets = 0;
 
         serverInfo = (ServerInfo *) malloc(sizeof(ServerInfo));
 
@@ -98,7 +125,19 @@ int main(int argc, char *argv[]) {
 
 
             while (1) {
+                printF("Esperant connexions...\n");
+                clientFD = accept(listenFD, (struct sockaddr *) NULL, NULL);
+                if (clientFD > 0) {
+                    //Create thread for every client
+                    pthread_t threadClient;
+                    pthread_create(&threadClient, NULL, run_thread, &clientFD);
 
+                    printF("Se ha conectado alguien!\n");
+
+                } else {
+                    printF("ERROR on accept");
+                    return -1;
+                }
 
 
             }

@@ -1,6 +1,5 @@
 #include "Frame.h"
 
-#include <stdio.h>
 
 Frame createFrameFromString(char string[256]) {
     int i;

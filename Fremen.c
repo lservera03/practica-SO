@@ -27,7 +27,8 @@ void end() {
 
 int main(int argc, char *argv[]) {
     int correct, i, exit;
-    char character, *buffer ,*fremen = "FREMEN";
+    char character, *buffer;
+	//char *fremen = "FREMEN";
 
     i = 0;
     buffer = NULL;

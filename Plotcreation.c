@@ -20,7 +20,7 @@ char *createOrigin(char string[]) {
 
 char *completeDataTrama(char *trama, char *dades) {
 
-    for (int i = 0; i < strlen(dades); i++) {
+    for (unsigned int i = 0; i < strlen(dades); i++) {
         trama[i + 16] = dades[i];
     }
 
@@ -114,7 +114,8 @@ char *sendDataPhoto(char *dadesBinarias) {
     trama = createOrigin("FREMEN");
     trama[15] = 'D';
 
-    sprintf(dades, "%s", dades);
+	//TODO no es pot concatenar una string amb si mateixa (arreglar)
+    //sprintf(dades, "%s", dades);
 
     trama = completeDataTrama(trama, dades);
 

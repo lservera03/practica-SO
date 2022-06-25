@@ -41,7 +41,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     // todo poner valor a size del fichero y MD5SUM
     char *size = NULL;
     char *MD5SUM = NULL;
-    char *dadesBinarias ;
+    //char *dadesBinarias ;
+    char *trama;
 
     int i = 0, exit;
 

@@ -13,6 +13,7 @@
 #include "File.h"
 #include "Frame.h"
 #include "UserManagement.h"
+#include "Connection.h"
 #include <arpa/inet.h>
 
 
