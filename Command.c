@@ -5,9 +5,13 @@
 
 
 Command *command;
-int atreides_fd, isLogged;
+int atreides_fd, is_logged = 0, id_user = -1;
 ServerInfo *server_info;
-// TODO NAME GLOBAL
+char *username;
+
+
+//TODO RSI_SIGINT
+
 
 void create_connection_atreides() {
     struct sockaddr_in s_addr;
@@ -43,6 +47,9 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     char *MD5SUM = NULL;
     //char *dadesBinarias ;
     char *trama;
+	char frame_string[256];
+	char string_output[100];
+	Frame frame_struct;
 
     int i = 0, exit;
 
@@ -79,14 +86,37 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 
                         create_connection_atreides();
+
                         //Check if the socket is correct
                         if (atreides_fd != -1) {
+
+							username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]));
+
+							strcpy(username, command->arguments[1]);
 
                             frame = tramaStartConexion(command->arguments[1], command->arguments[2]);
 
                             //Enviar trama solicitant connexió
                             write(atreides_fd, frame, 256);
 
+							//Wait for response
+							read(atreides_fd, frame_string, (sizeof(char) * 256));
+
+							//Process response received
+							frame_struct = createFrameFromString(frame_string);
+
+
+							//TODO check if the frame is correct(O) or not (E)
+							
+							id_user = atoi(frame_struct.data);
+
+							sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
+
+							printF(string_output);
+
+							printF("Ara estàs connectat a Atreides.");
+
+							is_logged = 1;
 
 
 

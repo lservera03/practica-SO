@@ -70,9 +70,9 @@ void add_user(User user){
 }
 
 
-void login_user(Frame frame) {
+void login_user(int fd, Frame frame) {
     int exit = 0, found = 0, i = 0, id_user;
-	//char *trama;
+	char *trama;
 	char string_output[100];
 	User user;
 	char *parameters[2];
@@ -123,29 +123,36 @@ void login_user(Frame frame) {
 
 	printF(string_output);
 
-	//TODO send response
+	//send response
 
-	//trama = tramaConnectionCreated(users->registered_users[i].id);
+	trama = tramaConnectionCreated(id_user);
+	
+	write(fd, trama, 256);
 
 }
 
 
 void *run_thread(void *fd_client) {
+	int exit = 0;
     int fd = *((int *) fd_client);
     char frame_string[256];
 	Frame frame;
 
-    read(fd, frame_string, (sizeof(char) * 256));
+
+	
+	while(!exit){
+	
+	    read(fd, frame_string, (sizeof(char) * 256));
 
 
-    frame = createFrameFromString(frame_string);
+    	frame = createFrameFromString(frame_string);
 
-    switch (frame.type) {
-        case 'C': //LOGIN
-            login_user(frame);
-            break;
-    }
-
+    	switch (frame.type) {
+        	case 'C': //LOGIN
+            	login_user(fd, frame);
+            	break;
+    	}
+	}
 
     
 	return NULL;
