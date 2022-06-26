@@ -12,6 +12,14 @@ char *username;
 
 //TODO RSI_SIGINT
 
+void RSI_SIGINT(){
+
+	
+	close(atreides_fd);
+
+}
+
+
 
 void create_connection_atreides() {
     struct sockaddr_in s_addr;
@@ -41,7 +49,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     char upper[50];
     char *frame;
     //TODO CAMBIAR id SOCKET
-    char *id = NULL;
     // todo poner valor a size del fichero y MD5SUM
     char *size = NULL;
     char *MD5SUM = NULL;
@@ -79,8 +86,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                 if (*ptr == '\0') {
 
-                    write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-
                     if (*ptr == '\0') {
                         //TODO check if there is already a user logged in.
 
@@ -114,7 +119,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 							printF(string_output);
 
-							printF("Ara estàs connectat a Atreides.");
+							printF("Ara estàs connectat a Atreides.\n");
 
 							is_logged = 1;
 
@@ -135,8 +140,23 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
             }
         } else if (strcmp(upper, "SEARCH") == 0) {
             if (command->num_arguments == 2) {
-                write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                trama = tramaSearch(command->arguments[1], id, command->arguments[2]);
+
+				//Check if the user is logged in
+				if(is_logged){
+
+					trama = tramaSearch(username, id_user, command->arguments[1]);
+					
+					//Send frame requesting the search
+					write(atreides_fd, trama, 256);
+					
+
+
+
+				} else {
+					printF("You must be logged in to execute that command!\n");
+				}
+
+
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
                       sizeof(char) * strlen("Comanda KO. Falta paràmetres\n"));
@@ -172,7 +192,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                trama = tramaFinishConeixion(command->arguments[1], id);
+                trama = tramaFinishConeixion(command->arguments[1], id_user);
                 exit = 1;
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",

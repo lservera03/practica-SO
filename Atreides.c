@@ -129,7 +129,65 @@ void login_user(int fd, Frame frame) {
 	
 	write(fd, trama, 256);
 
+	printF("Enviada resposta\n\n");
+
 }
+
+
+
+void search_users(Frame frame){
+	char *parameters[3];
+	char string_output[100];
+	int i = 0, counter = 0;
+
+	//split frame.data to get parameters (postal_code)
+	char *p = strtok (frame.data, "*");
+
+
+    while (p != NULL){
+         parameters[i++] = p;
+         p = strtok (NULL, "*");
+    }	
+
+	sprintf(string_output, "Rebut search %s de %s %s\n", parameters[2], parameters[0], parameters[1]);
+
+	printF(string_output);
+	
+	//Clean string output
+	memset(string_output, '\0', strlen(string_output));
+
+	//search users witht that postal code
+	for(int j = 0; j < users->last_id; j++){
+		if(strcmp(users->registered_users[j].postal_code, parameters[2]) == 0){ //Find a user with that postal code
+			counter++;
+		}
+	}
+
+	printF("Feta la cerca\n");
+
+	sprintf(string_output, "Hi ha %d persones humanes a %s\n", counter, parameters[2]);
+
+	printF(string_output);
+
+	//Clean string output
+	memset(string_output, '\0', strlen(string_output));
+
+	//Use another loop to not load the system with more memory to save the users
+	for(int j = 0; j < users->last_id; j++){
+		if(strcmp(users->registered_users[j].postal_code, parameters[2]) == 0){
+			sprintf(string_output, "%d %s\n", users->registered_users[j].id, users->registered_users[j].username);
+			printF(string_output);
+
+			//Clean string output
+			memset(string_output, '\0', strlen(string_output));
+		}
+	}
+
+
+
+
+}
+
 
 
 void *run_thread(void *fd_client) {
@@ -151,6 +209,9 @@ void *run_thread(void *fd_client) {
         	case 'C': //LOGIN
             	login_user(fd, frame);
             	break;
+			case 'S': //SEARCH
+				search_users(frame);
+				break;
     	}
 	}
 
@@ -201,6 +262,8 @@ int main(int argc, char *argv[]) {
 			//read users
 			users = (Users *) malloc(sizeof(Users));
 		    readUsers(users);
+
+
 
 
             while (1) {

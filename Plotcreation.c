@@ -69,14 +69,20 @@ char *tramaConnectionCreated(int id) {
 
 
 
-char *tramaFinishConeixion(char *name, char *id) {
+char *tramaFinishConeixion(char *name, int id_user) {
     char *trama;
-    char *dades = (char *) malloc(sizeof(name) + sizeof(id));
+	char aux[50];
+
+	//Get id length for malloc
+	int id_length = sprintf(aux, "%d", id_user);
+
+
+    char *dades = (char *) malloc(sizeof(name) + id_length);
 
     trama = createOrigin("FREMEN");
     trama[15] = 'Q';
 
-    sprintf(dades, "%s*%s", name, id);
+    sprintf(dades, "%s*%d", name, id_user);
 
     trama = completeDataTrama(trama, dades);
 
@@ -84,14 +90,19 @@ char *tramaFinishConeixion(char *name, char *id) {
 }
 
 
-char *tramaSearch(char *name, char *id, char *codipostal) {
+char *tramaSearch(char *name, int id_user, char *codipostal) {
     char *trama;
-    char *dades = (char *) malloc(sizeof(name) + sizeof(id) + sizeof(codipostal));
+	char aux[50];
+
+	//Get id length for the malloc
+	int id_length = sprintf(aux, "%d", id_user);
+
+    char *dades = (char *) malloc(sizeof(name) + id_length + sizeof(codipostal));
 
     trama = createOrigin("FREMEN");
     trama[15] = 'S';
 
-    sprintf(dades, "%s*%s*%s", name, id, codipostal);
+    sprintf(dades, "%s*%d*%s", name, id_user, codipostal);
 
     trama = completeDataTrama(trama, dades);
 

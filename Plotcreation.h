@@ -21,9 +21,9 @@ char *tramaStartConexion(char *name, char *codipostal);
 
 char *tramaConnectionCreated(int id);
 
-char *tramaFinishConeixion(char *name, char *id);
+char *tramaFinishConeixion(char *name, int id_user);
 
-char *tramaSearch(char *name, char *id, char *codipostal);
+char *tramaSearch(char *name, int id_user, char *codipostal);
 
 char *tramaSearchPicture(char *nameFichero, char *size , char *MD5SUM);
 

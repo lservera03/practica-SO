@@ -21,7 +21,11 @@ void end() {
     }
     freeMemoryCommand();
 
-    //raise(SIGINT);
+	RSI_SIGINT();
+
+	
+	signal(SIGINT, SIG_DFL);
+    raise(SIGINT);
 }
 
 

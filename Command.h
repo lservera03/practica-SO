@@ -23,6 +23,7 @@ void create_connection_atreides();
 
 int executeCommand(char string[], ServerInfo *serverInfo);
 
+void RSI_SIGINT();
 
 void createCommand(char string[]);
 
