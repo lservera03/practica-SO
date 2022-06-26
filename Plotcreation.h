@@ -31,6 +31,8 @@ char *tramaPhotoPeticion(char *id);
 
 char *sendDataPhoto(char *dadesBinarias);
 
+char *MD5Generate(char *pathFoto);
+
 char *createOrigin(char string[]);
 
 

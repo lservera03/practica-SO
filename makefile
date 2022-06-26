@@ -18,3 +18,4 @@ atreides.o: Atreides.c Atreides.h File.h Frame.h Connection.h UserManagement.h P
 atreides: atreides.o file.o frame.o userManagement.o plotcreation.o
 	gcc Atreides.o File.o Frame.o UserManagement.o Plotcreation.o -o Atreides.exe -Wall -Wextra -lpthread
 
+

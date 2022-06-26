@@ -1,6 +1,6 @@
 #include "Command.h"
 #include "stdio.h"
-
+#include "unistd.h"
 #define printF(x) write(1, x, strlen(x))
 
 
@@ -14,7 +14,7 @@ char *username;
 
 void RSI_SIGINT(){
 
-	
+
 	close(atreides_fd);
 
 }
@@ -49,9 +49,10 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     char upper[50];
     char *frame;
     //TODO CAMBIAR id SOCKET
+    char *id = NULL;
     // todo poner valor a size del fichero y MD5SUM
-    char *size = NULL;
-    char *MD5SUM = NULL;
+   // char *size = NULL;
+   // char *MD5SUM = NULL;
     //char *dadesBinarias ;
     char *trama;
 	char frame_string[256];
@@ -86,6 +87,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                 if (*ptr == '\0') {
 
+                    write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
+
                     if (*ptr == '\0') {
                         //TODO check if there is already a user logged in.
 
@@ -119,7 +122,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 							printF(string_output);
 
-							printF("Ara estàs connectat a Atreides.\n");
+							printF("Ara estàs connectat a Atreides.");
 
 							is_logged = 1;
 
@@ -145,10 +148,10 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 				if(is_logged){
 
 					trama = tramaSearch(username, id_user, command->arguments[1]);
-					
+
 					//Send frame requesting the search
 					write(atreides_fd, trama, 256);
-					
+
 
 
 
@@ -163,12 +166,31 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
             }
         } else if (strcmp(upper, "SEND") == 0) {
             if (command->num_arguments == 2) {
-                write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
+             //   write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
 
-                trama = tramaSearchPicture(command->arguments[1], size, MD5SUM);
+                // todo liberar memoria
+                char *pathFoto = (char *) malloc(sizeof(strlen("fremen1/")) + sizeof(command->arguments[1]));
 
-                if (strcmp(trama, "1") == 0) {write(STDOUT_FILENO, "ERROR: filename too big\n",sizeof(char) * strlen("ERROR: filename too big\n"));}
-                if (strcmp(trama, "2")== 0) {write(STDOUT_FILENO, "ERROR: MD5SUM too big\n", sizeof(char) * strlen("ERROR: MD5SUM too big\n"));}
+                sprintf(pathFoto, "fremen1/%s",command->arguments[1]);
+
+              //  int z = open(pathFoto,O_RDONLY);
+
+                if (access(pathFoto , F_OK) != 0) {
+                    printF("Error: La imagen no existe\n");
+                } else {
+
+                    // frame = tramaSearchPicture(command->arguments[1], size, MD5SUM);
+                    MD5Generate(pathFoto);
+                    // frame = sendDataPhoto(dadesBinarias);
+
+                   /* if (strcmp(frame, "1") == 0) {
+                        write(STDOUT_FILENO, "ERROR: filename too big\n",
+                              sizeof(char) * strlen("ERROR: filename too big\n"));
+                    }
+                    if (strcmp(frame, "2") == 0) {
+                        write(STDOUT_FILENO, "ERROR: MD5SUM too big\n", sizeof(char) * strlen("ERROR: MD5SUM too big\n"));
+                    }*/
+                }//gcc -c Plotcreation.c -Wall -Wextra
 
             } else if (command->num_arguments < 2) {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
@@ -183,8 +205,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 trama = tramaPhotoPeticion(command->arguments[1]);
 
 
-             //   trama = sendDataPhoto(dadesBinarias);
-
+                 frame = tramaPhotoPeticion(command->arguments[1]);
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
                       sizeof(char) * strlen("Comanda KO. Falta paràmetres\n"));
@@ -192,7 +213,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                trama = tramaFinishConeixion(command->arguments[1], id_user);
+                trama = tramaFinishConeixion(command->arguments[1], id);
                 exit = 1;
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",
