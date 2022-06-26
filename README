@@ -2,3 +2,4 @@ make
 
 ./Fremen.exe config.txt
 
+./Atreides.exe config_server.txt

@@ -39,6 +39,8 @@ char *MD5Generate(char *pathFoto);
 
 int GetSizeFile (char *pathFoto);
 
+char *GEtBinari( int photo_fd);
+
 char *createOrigin(char string[]);
 
 

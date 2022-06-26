@@ -1,6 +1,7 @@
 #include "Command.h"
 #include "stdio.h"
 #include "unistd.h"
+
 #define printF(x) write(1, x, strlen(x))
 
 
@@ -12,13 +13,12 @@ char *username;
 
 //TODO RSI_SIGINT
 
-void RSI_SIGINT(){
+void RSI_SIGINT() {
 
 
-	close(atreides_fd);
+    close(atreides_fd);
 
 }
-
 
 
 void create_connection_atreides() {
@@ -49,17 +49,11 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     char upper[50];
     char *frame;
     //TODO CAMBIAR id SOCKET
-    //char *id = NULL;
-    // todo poner valor a size del fichero y MD5SUM
-   // char *size = NULL;
-   // char *MD5SUM = NULL;
-    //char *id = NULL;
     // todo poner valor a size del fichero y md5Sum_hash
     int size;
-    //char *dadesBinarias ;
-	char frame_string[256];
-	char string_output[100];
-	Frame frame_struct;
+    char frame_string[256];
+    char string_output[100];
+    Frame frame_struct;
 
     int i = 0, exit;
 
@@ -100,34 +94,33 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                         //Check if the socket is correct
                         if (atreides_fd != -1) {
 
-							username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]));
+                            username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]));
 
-							strcpy(username, command->arguments[1]);
+                            strcpy(username, command->arguments[1]);
 
                             frame = tramaStartConexion(command->arguments[1], command->arguments[2]);
 
                             //Enviar trama solicitant connexió
                             write(atreides_fd, frame, 256);
 
-							//Wait for response
-							read(atreides_fd, frame_string, (sizeof(char) * 256));
+                            //Wait for response
+                            read(atreides_fd, frame_string, (sizeof(char) * 256));
 
-							//Process response received
-							frame_struct = createFrameFromString(frame_string);
+                            //Process response received
+                            frame_struct = createFrameFromString(frame_string);
 
 
-							//TODO check if the frame is correct(O) or not (E)
-							
-							id_user = atoi(frame_struct.data);
+                            //TODO check if the frame is correct(O) or not (E)
 
-							sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
+                            id_user = atoi(frame_struct.data);
 
-							printF(string_output);
+                            sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
 
-							printF("Ara estàs connectat a Atreides.\n");
+                            printF(string_output);
 
-							is_logged = 1;
+                            printF("Ara estàs connectat a Atreides.\n");
 
+                            is_logged = 1;
 
 
                         } else {
@@ -146,68 +139,67 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "SEARCH") == 0) {
             if (command->num_arguments == 2) {
 
-				//Check if the user is logged in
-				if(is_logged){
+                //Check if the user is logged in
+                if (is_logged) {
 
-					frame = tramaSearch(username, id_user, command->arguments[1]);
+                    frame = tramaSearch(username, id_user, command->arguments[1]);
 
-					//Send frame requesting the search
-					write(atreides_fd, frame, 256);
+                    //Send frame requesting the search
+                    write(atreides_fd, frame, 256);
 
-					//Wait response with the users found
-					read(atreides_fd, frame_string, (sizeof(char) * 256));
-
-
-					frame_struct = createFrameFromString(frame_string);
+                    //Wait response with the users found
+                    read(atreides_fd, frame_string, (sizeof(char) * 256));
 
 
-					//If there are no users found
-					if(strlen(frame_struct.data) == 1){
-						sprintf(string_output, "No hi ha cap persona humana a %s\n", command->arguments[1]);
-						printF(string_output);
-					} else { //If there are users
-						//TODO split info and show
+                    frame_struct = createFrameFromString(frame_string);
 
 
-						//Split info and show
-						int name = 1;
-						int num_users_found = -1;
-						char aux[60];
-
-						char *p = strtok (frame_struct.data, "*");
-
-						num_users_found = atoi(p);
-
-						memset(string_output, '\0', 256);
-
-						sprintf(string_output, "Hi han %d persones humanes a %s\n", num_users_found, command->arguments[1]);
-
-						printF(string_output);
-
-						p = strtok (NULL, "*");
-
-					    while (p != NULL){
-							if(name){
-								name = 0;
-								strcpy(aux, p);
-							} else {
-								name = 1;
-								sprintf(string_output, "%s %s\n", p, aux);
-								printF(string_output);
-							}
-
-          					p = strtok (NULL, "*");
-      					}
+                    //If there are no users found
+                    if (strlen(frame_struct.data) == 1) {
+                        sprintf(string_output, "No hi ha cap persona humana a %s\n", command->arguments[1]);
+                        printF(string_output);
+                    } else { //If there are users
+                        //TODO split info and show
 
 
+                        //Split info and show
+                        int name = 1;
+                        int num_users_found = -1;
+                        char aux[60];
 
-					}
+                        char *p = strtok(frame_struct.data, "*");
+
+                        num_users_found = atoi(p);
+
+                        memset(string_output, '\0', 256);
+
+                        sprintf(string_output, "Hi han %d persones humanes a %s\n", num_users_found,
+                                command->arguments[1]);
+
+                        printF(string_output);
+
+                        p = strtok(NULL, "*");
+
+                        while (p != NULL) {
+                            if (name) {
+                                name = 0;
+                                strcpy(aux, p);
+                            } else {
+                                name = 1;
+                                sprintf(string_output, "%s %s\n", p, aux);
+                                printF(string_output);
+                            }
+
+                            p = strtok(NULL, "*");
+                        }
 
 
+                    }
 
-				} else {
-					printF("Has d'estar loguejat per executar aquesta comanda!\n");
-				}
+
+                } else {
+                    printF("Has d'estar loguejat per executar aquesta comanda!\n");
+                }
 
 
             } else {
@@ -215,55 +207,61 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                       sizeof(char) * strlen("Comanda KO. Falta paràmetres\n"));
             }
         } else if (strcmp(upper, "SEND") == 0) {
-            if (command->num_arguments == 2) {
-             //   write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
 
-                // todo liberar memoria
-                char *pathFoto = (char *) malloc(sizeof(strlen("fremen1/")) + sizeof(command->arguments[1]));
+            //Check if the user is logged in
+            if (is_logged) {
 
-                sprintf(pathFoto, "fremen1/%s",command->arguments[1]);
+                if (command->num_arguments == 2) {
 
-              //  int z = open(pathFoto,O_RDONLY);
+                    char *pathFoto = (char *) malloc(sizeof(strlen("fremen1/")) + sizeof(command->arguments[1]));
 
-                if (access(pathFoto , F_OK) != 0) {
-                    printF("Error: La imagen no existe\n");
-                } else {
-                    char *md5Sum_hash = malloc(32 * sizeof(*md5Sum_hash));
+                    sprintf(pathFoto, "fremen1/%s", command->arguments[1]);
 
-                    md5Sum_hash = MD5Generate(pathFoto);
-
-                    size = GetSizeFile(pathFoto);
-
-                    frame = tramaSearchPicture(command->arguments[1], size, md5Sum_hash);
-
-                    if (strcmp(frame, "1") == 0 ) {
-                        write(STDOUT_FILENO, "ERROR: filename too big\n",
-                              sizeof(char) * strlen("ERROR: filename too big\n"));
-                    }else if (strcmp(frame, "2") == 0) {
-                        write(STDOUT_FILENO, "ERROR: md5Sum_hash too big\n", sizeof(char) * strlen("ERROR: md5Sum_hash too big\n"));
+                    if (access(pathFoto, F_OK) != 0) {
+                        printF("Error: La imagen no existe\n");
                     } else {
-                        printf("%s","hola");
-                        // frame = sendDataPhoto(dadesBinarias);
+
+                        frame = tramaSearchPicture(command->arguments[1], GetSizeFile(pathFoto), MD5Generate(pathFoto));
+
+                        if (strcmp(frame, "1") == 0) {
+                            write(STDOUT_FILENO, "ERROR: filename too big\n",
+                                  sizeof(char) * strlen("ERROR: filename too big\n"));
+                        } else{
+                            write(atreides_fd, frame, 256);
+
+                            /* int photo_fd = open(pathFoto, O_RDONLY);
+                             char *dadesBinarias = malloc(240 * sizeof(*dadesBinarias));
+
+                             for (int z = 0; z < size / 240; z++) {
+                                 dadesBinarias = GEtBinari(photo_fd);
+                                 frame = sendDataPhoto(dadesBinarias);
+                                 write(atreides_fd, frame, 256);
+                             }
+                             close(photo_fd);*/
+
+                        }
+
                     }
 
 
-
+                } else if (command->num_arguments < 2) {
+                    write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
+                          sizeof(char) * strlen("Comanda KO. Falta paràmetres\n"));
+                } else {
+                    write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",
+                          sizeof(char) * strlen("Comanda KO. Massa paràmetres\n"));
                 }
 
-            } else if (command->num_arguments < 2) {
-                write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
-                      sizeof(char) * strlen("Comanda KO. Falta paràmetres\n"));
             } else {
-                write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",
-                      sizeof(char) * strlen("Comanda KO. Massa paràmetres\n"));
+                printF("Has d'estar loguejat per executar aquesta comanda!\n");
             }
+
         } else if (strcmp(upper, "PHOTO") == 0) {
             if (command->num_arguments == 2) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                frame= tramaPhotoPeticion(command->arguments[1]);
 
+                frame = tramaPhotoPeticion(command->arguments[1]);
 
-                 frame = tramaPhotoPeticion(command->arguments[1]);
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
                       sizeof(char) * strlen("Comanda KO. Falta paràmetres\n"));
@@ -271,7 +269,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                //frame = tramaFinishConeixion(command->arguments[1], id);
+                frame = tramaFinishConeixion(command->arguments[1], id_user);
                 exit = 1;
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",

@@ -165,8 +165,7 @@ char *sendDataPhoto(char *dadesBinarias) {
     trama = createOrigin("FREMEN");
     trama[15] = 'D';
 
-    //TODO no es pot concatenar una string amb si mateixa (arreglar)
-    //sprintf(dades, "%s", dades);
+    sprintf(dades, "%s", dadesBinarias);
 
     trama = completeDataTrama(trama, dades);
 
@@ -207,4 +206,17 @@ int GetSizeFile (char *pathFoto) {
     int size = st.st_size;
 
     return size;
+}
+
+char *GEtBinari( int photo_fd) {
+
+    char *dadesBinarias = malloc(240 * sizeof(*dadesBinarias));
+
+    read(photo_fd,dadesBinarias,240);
+
+    //printF(dadesBinarias);
+//    for (int i = 0; i < 240; i++) {
+//        printf("%c",dadesBinarias[i]);
+//    }
+    return  dadesBinarias;
 }

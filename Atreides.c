@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "Atreides.h"
 
 #define printF(x) write(1, x, strlen(x))
@@ -7,6 +8,8 @@ int listenFD, num_connections;
 Connection *open_connections;
 Users *users;
 
+
+void read_info_photo_send();
 
 void RSI_SIGINT(){
 
@@ -213,7 +216,25 @@ void search_users(int fd, Frame frame){
 
 
 }
+void read_info_photo_send(Frame frame) {
+    char *parameters[3];
+    int i = 0;
+    char string_output[100];
 
+    //split frame.data to get parameters (MD5SUM)
+    char *p = strtok (frame.data, "*");
+
+
+    while (p != NULL){
+        parameters[i++] = p;
+        p = strtok (NULL, "*");
+    }
+    sprintf(string_output, "Rebut foto %s mida %s hash %s\n", parameters[0], parameters[1], parameters[2]);
+
+    printF(string_output);
+
+    memset(string_output, '\0', strlen(string_output));
+}
 
 
 void *run_thread(void *fd_client) {
@@ -238,12 +259,19 @@ void *run_thread(void *fd_client) {
 			case 'S': //SEARCH
 				search_users(fd, frame);
 				break;
+            case 'F': //SEND
+
+                    read_info_photo_send(frame);
+
+                break;
     	}
 	}
 
     
 	return NULL;
 }
+
+
 
 int main(int argc, char *argv[]) {
     int clientFD;
@@ -272,7 +300,7 @@ int main(int argc, char *argv[]) {
             }
 
             bzero(&servidor, sizeof(servidor));
-            servidor.sin_port = htons(8700); //Falla al posar-ho serverInfo-port
+            servidor.sin_port = htons(8715); //Falla al posar-ho serverInfo-port 8715
             servidor.sin_family = AF_INET;
             servidor.sin_addr.s_addr = htons(INADDR_ANY);
 
