@@ -1,14 +1,13 @@
 #include "Plotcreation.h"
-#include "stdio.h"
+#include <stdio.h>
+#include "unistd.h"
 
 #define printF(x) write(1, x, strlen(x))
-
 
 
 char *createOrigin(char string[]) {
     char *trama = malloc(256 * sizeof(*trama));
     strcpy(trama, string);
-
 
     for (int i = strlen(string); i < 15; i++) {
         trama[i] = '\0';
@@ -48,25 +47,24 @@ char *tramaStartConexion(char *nom, char *codipostal) {
 
 char *tramaConnectionCreated(int id) {
     char *trama;
-	char aux[20];
+    char aux[20];
 
 
-	//Know the length of the integer to create string with that size
-	int id_length = sprintf(aux, "%d", id);
+    //Know the length of the integer to create string with that size
+    int id_length = sprintf(aux, "%d", id);
 
-	char *dades = (char *) malloc(id_length);
+    char *dades = (char *) malloc(id_length);
 
     trama = createOrigin("ATREIDES");
     trama[15] = 'O';
 
     sprintf(dades, "%d", id);
-  
+
     trama = completeDataTrama(trama, dades);
-  
-	
+
+
     return trama;
 }
-
 
 
 char *tramaFinishConeixion(char *name, char *id) {
@@ -137,13 +135,35 @@ char *sendDataPhoto(char *dadesBinarias) {
     trama = createOrigin("FREMEN");
     trama[15] = 'D';
 
-	//TODO no es pot concatenar una string amb si mateixa (arreglar)
+    //TODO no es pot concatenar una string amb si mateixa (arreglar)
     //sprintf(dades, "%s", dades);
 
     trama = completeDataTrama(trama, dades);
 
     return trama;
 
+}
+
+char *MD5Generate(char *pathFoto) {
+    int fill;
+
+    fill = fork();
+    if (fill > 0) {
+       // wait(NULL);
+    } else {
+
+      /*  char *args[3];
+
+        args[0] = "md5sum";
+        args[1] = pathFoto;
+        args[2] = NULL;
+
+        execvp(args[0], args);
+*/
+
+        execl("/bin/md5sum" ,"md5sum", pathFoto ,NULL);
+    }
+    return NULL;
 }
 
 
