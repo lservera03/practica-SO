@@ -83,7 +83,7 @@ char *tramaFinishConeixion(char *name, int id_user) {
     trama = createOrigin("FREMEN");
     trama[15] = 'Q';
 
-    sprintf(dades, "%s*%s", name, id);
+    sprintf(dades, "%s*%d", name, id_user);
 
     trama = completeDataTrama(trama, dades);
 
@@ -163,19 +163,15 @@ char *MD5Generate(char *pathFoto) {
 
     fill = fork();
     if (fill > 0) {
-       // wait(NULL);
+
+
     } else {
 
-      /*  char *args[3];
 
-        args[0] = "md5sum";
-        args[1] = pathFoto;
-        args[2] = NULL;
-
+        char *args[] = {"md5sum",pathFoto,NULL};
         execvp(args[0], args);
-*/
 
-        execl("/bin/md5sum" ,"md5sum", pathFoto ,NULL);
+
     }
     return NULL;
 }

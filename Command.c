@@ -54,7 +54,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
    // char *size = NULL;
    // char *MD5SUM = NULL;
     //char *dadesBinarias ;
-    char *trama;
 	char frame_string[256];
 	char string_output[100];
 	Frame frame_struct;
@@ -147,10 +146,10 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 				//Check if the user is logged in
 				if(is_logged){
 
-					trama = tramaSearch(username, id_user, command->arguments[1]);
+					frame = tramaSearch(username, id_user, command->arguments[1]);
 
 					//Send frame requesting the search
-					write(atreides_fd, trama, 256);
+					write(atreides_fd, frame, 256);
 
 
 
@@ -202,7 +201,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "PHOTO") == 0) {
             if (command->num_arguments == 2) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                trama = tramaPhotoPeticion(command->arguments[1]);
+                frame= tramaPhotoPeticion(command->arguments[1]);
 
 
                  frame = tramaPhotoPeticion(command->arguments[1]);
@@ -213,7 +212,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                trama = tramaFinishConeixion(command->arguments[1], id);
+                frame = tramaFinishConeixion(command->arguments[1], id);
                 exit = 1;
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",
@@ -228,10 +227,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
             fill = fork();
             if (fill > 0) {
                 //pid = getpid();
-
                 wait(NULL);
-
-
                 freeMemoryCommand();
             } else if (fill == 0) {
 
