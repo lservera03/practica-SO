@@ -135,10 +135,17 @@ void login_user(int fd, Frame frame) {
 
 
 
-void search_users(Frame frame){
+void search_users(int fd, Frame frame){
 	char *parameters[3];
 	char string_output[100];
 	int i = 0, counter = 0;
+	char data[240];
+	char aux[100];
+	char *trama;
+
+	
+	memset(aux, '\0', 100);
+	memset(data, '\0', 240);
 
 	//split frame.data to get parameters (postal_code)
 	char *p = strtok (frame.data, "*");
@@ -169,6 +176,9 @@ void search_users(Frame frame){
 
 	printF(string_output);
 
+
+	sprintf(data, "%d", counter);
+
 	//Clean string output
 	memset(string_output, '\0', strlen(string_output));
 
@@ -178,12 +188,28 @@ void search_users(Frame frame){
 			sprintf(string_output, "%d %s\n", users->registered_users[j].id, users->registered_users[j].username);
 			printF(string_output);
 
+			//TODO allow to send more than 1 frame when it is too large
+			
+			sprintf(aux, "*%s*%d", users->registered_users[j].username,users->registered_users[j].id);
+			
+			strcat(data, aux);
+			
+			//Clean aux string
+			memset(aux, '0', 100);
+
+
 			//Clean string output
 			memset(string_output, '\0', strlen(string_output));
 		}
 	}
 
+	
+	trama = tramaSearchResponse(data);
 
+	//TODO send response with the users found
+	write(fd, trama, 256);
+
+	printF("Enviada resposta\n");
 
 
 }
@@ -210,7 +236,7 @@ void *run_thread(void *fd_client) {
             	login_user(fd, frame);
             	break;
 			case 'S': //SEARCH
-				search_users(frame);
+				search_users(fd, frame);
 				break;
     	}
 	}

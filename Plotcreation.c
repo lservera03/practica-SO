@@ -111,6 +111,22 @@ char *tramaSearch(char *name, int id_user, char *codipostal) {
 }
 
 
+char *tramaSearchResponse(char *string) {
+    char *trama;
+
+    char *dades = (char *) malloc(sizeof(char) * strlen(string));
+
+    trama = createOrigin("ATREIDES");
+    trama[15] = 'L';
+
+    sprintf(dades, "%s", string);
+
+    trama = completeDataTrama(trama, dades);
+    
+	return trama;
+}
+
+
 char *tramaSearchPicture(char *nameFichero, char *size, char *MD5SUM) {
     char *trama;
     char *dades = (char *) malloc(sizeof(nameFichero) + sizeof(size) + sizeof(MD5SUM));

@@ -49,7 +49,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     char upper[50];
     char *frame;
     //TODO CAMBIAR id SOCKET
-    char *id = NULL;
+    //char *id = NULL;
     // todo poner valor a size del fichero y MD5SUM
    // char *size = NULL;
    // char *MD5SUM = NULL;
@@ -121,7 +121,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 							printF(string_output);
 
-							printF("Ara estàs connectat a Atreides.");
+							printF("Ara estàs connectat a Atreides.\n");
 
 							is_logged = 1;
 
@@ -151,11 +151,59 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 					//Send frame requesting the search
 					write(atreides_fd, frame, 256);
 
+					//Wait response with the users found
+					read(atreides_fd, frame_string, (sizeof(char) * 256));
 
+
+					frame_struct = createFrameFromString(frame_string);
+
+					
+					//If there are no users found
+					if(strlen(frame_struct.data) == 1){
+						sprintf(string_output, "No hi ha cap persona humana a %s\n", command->arguments[1]);
+						printF(string_output);
+					} else { //If there are users
+						//TODO split info and show
+						
+						
+						//Split info and show
+						int name = 1;
+						int num_users_found = -1;
+						char aux[60];
+  
+						char *p = strtok (frame_struct.data, "*");
+
+						num_users_found = atoi(p);
+
+						memset(string_output, '\0', 256);
+
+						sprintf(string_output, "Hi han %d persones humanes a %s\n", num_users_found, command->arguments[1]);
+
+						printF(string_output);
+
+						p = strtok (NULL, "*");
+
+					    while (p != NULL){
+							if(name){
+								name = 0;
+								strcpy(aux, p);
+							} else {
+								name = 1;
+								sprintf(string_output, "%s %s\n", p, aux);
+								printF(string_output);
+							}
+
+          					p = strtok (NULL, "*");
+      					}
+
+
+
+					}
+	
 
 
 				} else {
-					printF("You must be logged in to execute that command!\n");
+					printF("Has d'estar loguejat per executar aquesta comanda!\n");
 				}
 
 
@@ -212,7 +260,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                frame = tramaFinishConeixion(command->arguments[1], id);
+                frame = tramaFinishConeixion(command->arguments[1], id_user);
                 exit = 1;
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",

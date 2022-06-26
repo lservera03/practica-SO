@@ -25,6 +25,8 @@ char *tramaFinishConeixion(char *name, int id_user);
 
 char *tramaSearch(char *name, int id_user, char *codipostal);
 
+char *tramaSearchResponse(char *string);
+
 char *tramaSearchPicture(char *nameFichero, char *size , char *MD5SUM);
 
 char *tramaPhotoPeticion(char *id);
