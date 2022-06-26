@@ -53,6 +53,9 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     // todo poner valor a size del fichero y MD5SUM
    // char *size = NULL;
    // char *MD5SUM = NULL;
+    //char *id = NULL;
+    // todo poner valor a size del fichero y md5Sum_hash
+    int size;
     //char *dadesBinarias ;
 	char frame_string[256];
 	char string_output[100];
@@ -157,20 +160,20 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 					frame_struct = createFrameFromString(frame_string);
 
-					
+
 					//If there are no users found
 					if(strlen(frame_struct.data) == 1){
 						sprintf(string_output, "No hi ha cap persona humana a %s\n", command->arguments[1]);
 						printF(string_output);
 					} else { //If there are users
 						//TODO split info and show
-						
-						
+
+
 						//Split info and show
 						int name = 1;
 						int num_users_found = -1;
 						char aux[60];
-  
+
 						char *p = strtok (frame_struct.data, "*");
 
 						num_users_found = atoi(p);
@@ -199,7 +202,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 
 					}
-	
+
 
 
 				} else {
@@ -225,19 +228,27 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 if (access(pathFoto , F_OK) != 0) {
                     printF("Error: La imagen no existe\n");
                 } else {
+                    char *md5Sum_hash = malloc(32 * sizeof(*md5Sum_hash));
 
-                    // frame = tramaSearchPicture(command->arguments[1], size, MD5SUM);
-                    MD5Generate(pathFoto);
-                    // frame = sendDataPhoto(dadesBinarias);
+                    md5Sum_hash = MD5Generate(pathFoto);
 
-                   /* if (strcmp(frame, "1") == 0) {
+                    size = GetSizeFile(pathFoto);
+
+                    frame = tramaSearchPicture(command->arguments[1], size, md5Sum_hash);
+
+                    if (strcmp(frame, "1") == 0 ) {
                         write(STDOUT_FILENO, "ERROR: filename too big\n",
                               sizeof(char) * strlen("ERROR: filename too big\n"));
+                    }else if (strcmp(frame, "2") == 0) {
+                        write(STDOUT_FILENO, "ERROR: md5Sum_hash too big\n", sizeof(char) * strlen("ERROR: md5Sum_hash too big\n"));
+                    } else {
+                        printf("%s","hola");
+                        // frame = sendDataPhoto(dadesBinarias);
                     }
-                    if (strcmp(frame, "2") == 0) {
-                        write(STDOUT_FILENO, "ERROR: MD5SUM too big\n", sizeof(char) * strlen("ERROR: MD5SUM too big\n"));
-                    }*/
-                }//gcc -c Plotcreation.c -Wall -Wextra
+
+
+
+                }
 
             } else if (command->num_arguments < 2) {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
@@ -260,7 +271,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
                 write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                frame = tramaFinishConeixion(command->arguments[1], id_user);
+                //frame = tramaFinishConeixion(command->arguments[1], id);
                 exit = 1;
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",

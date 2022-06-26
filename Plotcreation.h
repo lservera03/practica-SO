@@ -13,6 +13,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
 #include "ServerInfo.h"
 #include "File.h"
 
@@ -27,13 +29,15 @@ char *tramaSearch(char *name, int id_user, char *codipostal);
 
 char *tramaSearchResponse(char *string);
 
-char *tramaSearchPicture(char *nameFichero, char *size , char *MD5SUM);
+char *tramaSearchPicture(char *nameFichero,  int size , char *MD5SUM);
 
 char *tramaPhotoPeticion(char *id);
 
 char *sendDataPhoto(char *dadesBinarias);
 
 char *MD5Generate(char *pathFoto);
+
+int GetSizeFile (char *pathFoto);
 
 char *createOrigin(char string[]);
 

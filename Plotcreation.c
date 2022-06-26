@@ -72,10 +72,10 @@ char *tramaConnectionCreated(int id) {
 
 char *tramaFinishConeixion(char *name, int id_user) {
     char *trama;
-	char aux[50];
+    char aux[50];
 
-	//Get id length for malloc
-	int id_length = sprintf(aux, "%d", id_user);
+    //Get id length for malloc
+    int id_length = sprintf(aux, "%d", id_user);
 
 
     char *dades = (char *) malloc(sizeof(name) + id_length);
@@ -93,10 +93,10 @@ char *tramaFinishConeixion(char *name, int id_user) {
 
 char *tramaSearch(char *name, int id_user, char *codipostal) {
     char *trama;
-	char aux[50];
+    char aux[50];
 
-	//Get id length for the malloc
-	int id_length = sprintf(aux, "%d", id_user);
+    //Get id length for the malloc
+    int id_length = sprintf(aux, "%d", id_user);
 
     char *dades = (char *) malloc(sizeof(name) + id_length + sizeof(codipostal));
 
@@ -122,12 +122,12 @@ char *tramaSearchResponse(char *string) {
     sprintf(dades, "%s", string);
 
     trama = completeDataTrama(trama, dades);
-    
+
 	return trama;
 }
 
 
-char *tramaSearchPicture(char *nameFichero, char *size, char *MD5SUM) {
+char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     char *trama;
     char *dades = (char *) malloc(sizeof(nameFichero) + sizeof(size) + sizeof(MD5SUM));
 
@@ -137,7 +137,7 @@ char *tramaSearchPicture(char *nameFichero, char *size, char *MD5SUM) {
     trama = createOrigin("FREMEN");
     trama[15] = 'F';
 
-    sprintf(dades, "%s*%s*%s", nameFichero, size, MD5SUM);
+    sprintf(dades, "%s*%d*%s", nameFichero, size, MD5SUM);
 
     trama = completeDataTrama(trama, dades);
 
@@ -175,21 +175,36 @@ char *sendDataPhoto(char *dadesBinarias) {
 }
 
 char *MD5Generate(char *pathFoto) {
-    int fill;
+    pid_t pid = 0;
+    int pipefd[2];
+    char *args[] = {"md5sum", pathFoto, NULL};
 
-    fill = fork();
-    if (fill > 0) {
+    pipe(pipefd); //create a pipe
+    pid = fork(); //spawn a child process
 
-
-    } else {
-
-
-        char *args[] = {"md5sum",pathFoto,NULL};
+    if (pid == 0) {
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
         execvp(args[0], args);
+    } else {
+        close(pipefd[1]);
+        char *md5Hash = malloc(32 * sizeof(*md5Hash));
 
+        read(pipefd[0], md5Hash, 32);
+        strtok(md5Hash, " ");
 
+        close(pipefd[0]);
+        return md5Hash;
     }
+
     return NULL;
 }
 
+int GetSizeFile (char *pathFoto) {
+    struct stat st;
 
+    stat(pathFoto, &st);
+    int size = st.st_size;
+
+    return size;
+}
