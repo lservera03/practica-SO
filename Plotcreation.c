@@ -223,11 +223,17 @@ int GetSizeFile (char *pathFoto) {
     return size;
 }
 
-char *GEtBinari( int photo_fd) {
+char *GEtBinari( int photo_fd ) {
 
     char *dadesBinarias = malloc(240 * sizeof(*dadesBinarias));
     memset(dadesBinarias, 0, 240);
 
     read(photo_fd,dadesBinarias,240);
+
+    for (int i = 0; i < 240; i++) {
+        printf("%c -\n",dadesBinarias[i]);
+    }
+
+
     return  dadesBinarias;
 }

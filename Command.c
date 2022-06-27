@@ -271,12 +271,12 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                             for (int z = 0; z < 4; z++) {
 
-                                frame = sendDataPhoto(photo_fd);
+                                frame = sendDataPhoto(photo_fd );
 
-                                printf("%d\n", z);
-                                for (int j = 0; j < 256; j++) {
-                                    printf("%c-\n",frame[j]);
-                                }
+                                printf("|||%d|||\n", z);
+//                                for (int j = 0; j < 256; j++) {
+//                                    printf("%c-\n",frame[j]);
+//                                }
 
                                 write(atreides_fd, frame, 256);
 
