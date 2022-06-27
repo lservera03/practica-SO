@@ -23,6 +23,8 @@ char *tramaStartConexion(char *name, char *codipostal);
 
 char *tramaConnectionCreated(int id);
 
+char *tramaConnectionFailed();
+
 char *tramaFinishConeixion(char *name, int id_user);
 
 char *tramaSearch(char *name, int id_user, char *codipostal);

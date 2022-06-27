@@ -74,7 +74,7 @@ void add_user(User user){
 
 
 void login_user(int fd, Frame frame) {
-    int exit = 0, found = 0, i = 0, id_user;
+    int correct = -1, exit = 0, found = 0, i = 0, id_user;
 	char *trama;
 	char string_output[100];
 	User user;
@@ -99,6 +99,14 @@ void login_user(int fd, Frame frame) {
 
 			id_user = users->registered_users[i].id;
 
+			//check if the postal code is the same as the registered one
+			if(strcmp(parameters[1], users->registered_users[i].postal_code) == 0){
+				correct = 1;
+			} else {
+				correct = 0;
+			}
+
+
             exit = 1;
             found = 1;
         }
@@ -120,6 +128,13 @@ void login_user(int fd, Frame frame) {
 		add_user(user);
 
     }
+	
+	//TODO if it is not correct send error frame
+	if(correct == 0){
+		trama = tramaConnectionFailed();	
+	} else {
+		trama = tramaConnectionCreated(id_user);
+	}	
 
 
 	sprintf(string_output, "Assignat a ID %d\n", id_user);
@@ -127,9 +142,6 @@ void login_user(int fd, Frame frame) {
 	printF(string_output);
 
 	//send response
-
-	trama = tramaConnectionCreated(id_user);
-	
 	write(fd, trama, 256);
 
 	printF("Enviada resposta\n\n");
@@ -209,7 +221,7 @@ void search_users(int fd, Frame frame){
 	
 	trama = tramaSearchResponse(data);
 
-	//TODO send response with the users found
+	// send response with the users found
 	write(fd, trama, 256);
 
 	printF("Enviada resposta\n");
@@ -229,6 +241,9 @@ void read_info_photo_send(Frame frame) {
         parameters[i++] = p;
         p = strtok (NULL, "*");
     }
+
+	printf("HOLAAA\n");
+
     sprintf(string_output, "Rebut foto %s mida %s hash %s\n", parameters[0], parameters[1], parameters[2]);
 
     printF(string_output);
@@ -300,7 +315,7 @@ int main(int argc, char *argv[]) {
             }
 
             bzero(&servidor, sizeof(servidor));
-            servidor.sin_port = htons(8715); //Falla al posar-ho serverInfo-port 8715
+            servidor.sin_port = htons(8700); //Falla al posar-ho serverInfo-port 8715
             servidor.sin_family = AF_INET;
             servidor.sin_addr.s_addr = htons(INADDR_ANY);
 

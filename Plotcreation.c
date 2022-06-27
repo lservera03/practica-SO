@@ -70,6 +70,22 @@ char *tramaConnectionCreated(int id) {
 
 
 
+char *tramaConnectionFailed() {
+    char *trama;
+    
+	char *dades = (char *) malloc(sizeof(char) * strlen("ERROR"));
+
+    trama = createOrigin("ATREIDES");
+    trama[15] = 'E';
+
+    sprintf(dades, "%s", "ERROR");
+
+    trama = completeDataTrama(trama, dades);
+
+
+    return trama;
+}
+
 char *tramaFinishConeixion(char *name, int id_user) {
     char *trama;
     char aux[50];

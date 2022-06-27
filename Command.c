@@ -50,7 +50,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     char *frame;
     //TODO CAMBIAR id SOCKET
     // todo poner valor a size del fichero y md5Sum_hash
-    int size;
     char frame_string[256];
     char string_output[100];
     Frame frame_struct;
@@ -83,8 +82,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                 if (*ptr == '\0') {
 
-                    write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-
                     if (*ptr == '\0') {
                         //TODO check if there is already a user logged in.
 
@@ -110,17 +107,26 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             frame_struct = createFrameFromString(frame_string);
 
 
-                            //TODO check if the frame is correct(O) or not (E)
+                            //check if the frame is correct(O) or not (E)
+						
+							switch (frame_struct.type){
+								case 'E': //ERROR in login
+									printF("Login incorrecte!\n");							
+									break;
+								case 'O': //LOGIN correct
+					                id_user = atoi(frame_struct.data);
 
-                            id_user = atoi(frame_struct.data);
+                    		        sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
 
-                            sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
+                            		printF(string_output);
 
-                            printF(string_output);
+		                            printF("Ara estàs connectat a Atreides.\n");
 
-                            printF("Ara estàs connectat a Atreides.\n");
-
-                            is_logged = 1;
+        		                    is_logged = 1;
+									break;
+								default: //FRAME NOT RECOGNIZED
+									break;
+							}
 
 
                         } else {
@@ -227,6 +233,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             write(STDOUT_FILENO, "ERROR: filename too big\n",
                                   sizeof(char) * strlen("ERROR: filename too big\n"));
                         } else{
+
                             write(atreides_fd, frame, 256);
 
                             /* int photo_fd = open(pathFoto, O_RDONLY);
