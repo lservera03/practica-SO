@@ -340,11 +340,15 @@ void logout(Frame frame){
 
 void send_user_photo(int fd, Frame frame){
 	char string_output[100];
-	char *path, *trama;
+	char *path, *trama, *filename;
 	char aux[50];
-	int id_user_photo;
+	int id_user_photo, size;
 
 	strcpy(aux, frame.data);
+
+	filename = (char *) malloc(sizeof(char) * (strlen(aux) + strlen(".jpg")));
+
+	sprintf(filename, "%s.jpg", aux);
 
 	id_user_photo = atoi(frame.data);
 	
@@ -363,9 +367,19 @@ void send_user_photo(int fd, Frame frame){
 
 	//check if the photo exists
 	if(access(path, F_OK) == 0){ //photo exists
-		printF("EXISTE");	
 
 		//TODO send picture
+		size = GetSizeFile(path);
+
+		trama = tramaPhotoPicture(filename, size, MD5Generate(path));
+
+		//TODO check trama correcta (1, 2)
+
+		//TODO check why trama is not correct
+
+		for(int i = 0; i < 256; i++){
+			printf("%c\n", trama[i]);
+		}
 
 	} else { //photo does not exists
 		

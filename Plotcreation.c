@@ -7,7 +7,7 @@
 
 
 char *createOrigin(char string[]) {
-    char *trama = malloc(256 * sizeof(*trama));
+    char *trama = malloc(256 * sizeof(char));
     strcpy(trama, string);
 
 
@@ -176,6 +176,30 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
 
     return trama;
 }
+
+
+
+
+char *tramaPhotoPicture(char *filename, int size, char *MD5SUM) {
+    char *trama;
+    char *dades = (char *) malloc(sizeof(filename) + sizeof(size) + sizeof(MD5SUM));
+
+    if (strlen(filename) > 30) return "1";
+    if (strlen(MD5SUM) > 32) return "2";
+
+    trama = createOrigin("ATREIDES");
+    trama[15] = 'F';
+
+    sprintf(dades, "%s*%d*%s", filename, size, MD5SUM);
+
+    trama = completeDataTrama(trama, dades);
+
+
+    return trama;
+
+}
+
+
 
 char *tramaPhotoRequest(char *id) {
     char *trama;
