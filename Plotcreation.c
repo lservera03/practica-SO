@@ -174,19 +174,16 @@ char *tramaPhotoPeticion(char *id) {
     return trama;
 }
 
-char *sendDataPhoto(char *dadesBinarias) {
+char *sendDataPhoto(int photo_fd) {
     char *trama;
-    char *dades = (char *) malloc(sizeof(dadesBinarias));
+    char *dadesBinarias = GEtBinari(photo_fd);
 
     trama = createOrigin("FREMEN");
     trama[15] = 'D';
 
-    sprintf(dades, "%s", dadesBinarias);
-
-    trama = completeDataTrama(trama, dades);
+    trama = completeDataTrama(trama, dadesBinarias);
 
     return trama;
-
 }
 
 char *MD5Generate(char *pathFoto) {
@@ -209,11 +206,13 @@ char *MD5Generate(char *pathFoto) {
         strtok(md5Hash, " ");
 
         close(pipefd[0]);
+
         return md5Hash;
     }
 
     return NULL;
 }
+
 
 int GetSizeFile (char *pathFoto) {
     struct stat st;
@@ -227,12 +226,8 @@ int GetSizeFile (char *pathFoto) {
 char *GEtBinari( int photo_fd) {
 
     char *dadesBinarias = malloc(240 * sizeof(*dadesBinarias));
+    memset(dadesBinarias, 0, 240);
 
     read(photo_fd,dadesBinarias,240);
-
-    //printF(dadesBinarias);
-//    for (int i = 0; i < 240; i++) {
-//        printf("%c",dadesBinarias[i]);
-//    }
     return  dadesBinarias;
 }

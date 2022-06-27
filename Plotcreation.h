@@ -35,7 +35,7 @@ char *tramaSearchPicture(char *nameFichero,  int size , char *MD5SUM);
 
 char *tramaPhotoPeticion(char *id);
 
-char *sendDataPhoto(char *dadesBinarias);
+char *sendDataPhoto(int photo_fd);
 
 char *MD5Generate(char *pathFoto);
 

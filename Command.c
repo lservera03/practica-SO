@@ -15,29 +15,29 @@ char *username;
 
 void RSI_SIGINT() {
 
-	free(server_info);
+    free(server_info);
 
-	if(is_logged){ //Send logout if the user is logged in 
-		char *trama;
+    if (is_logged) { //Send logout if the user is logged in
+        char *trama;
 
-		trama = tramaFinishConeixion(username, id_user);
-		
-		write(atreides_fd, trama, 256);
-		
-		printF("Desconnectat d'Atreides. Dew!\n");
-		
-		free(trama);
-	}
+        trama = tramaFinishConeixion(username, id_user);
 
-	free(username);
+        write(atreides_fd, trama, 256);
 
-	freeMemoryCommand();	
+        printF("Desconnectat d'Atreides. Dew!\n");
+
+        free(trama);
+    }
+
+    free(username);
+
+    freeMemoryCommand();
 
     close(atreides_fd);
 
 
-	//Let the system handle the SIGINT by default
-	signal(SIGINT, SIG_DFL);
+    //Let the system handle the SIGINT by default
+    signal(SIGINT, SIG_DFL);
     raise(SIGINT);
 
 }
@@ -76,7 +76,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     char string_output[100];
     Frame frame_struct;
 
-    int i = 0, exit;
+    int i = 0, exit; /*number_frame*/
 
     exit = 0;
 
@@ -130,25 +130,25 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 
                             //check if the frame is correct(O) or not (E)
-						
-							switch (frame_struct.type){
-								case 'E': //ERROR in login
-									printF("Login incorrecte!\n");							
-									break;
-								case 'O': //LOGIN correct
-					                id_user = atoi(frame_struct.data);
 
-                    		        sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
+                            switch (frame_struct.type) {
+                                case 'E': //ERROR in login
+                                    printF("Login incorrecte!\n");
+                                    break;
+                                case 'O': //LOGIN correct
+                                    id_user = atoi(frame_struct.data);
 
-                            		printF(string_output);
+                                    sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
 
-		                            printF("Ara estàs connectat a Atreides.\n");
+                                    printF(string_output);
 
-        		                    is_logged = 1;
-									break;
-								default: //FRAME NOT RECOGNIZED
-									break;
-							}
+                                    printF("Ara estàs connectat a Atreides.\n");
+
+                                    is_logged = 1;
+                                    break;
+                                default: //FRAME NOT RECOGNIZED
+                                    break;
+                            }
 
 
                         } else {
@@ -248,25 +248,40 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     if (access(pathFoto, F_OK) != 0) {
                         printF("Error: La imagen no existe\n");
                     } else {
+                        int size = GetSizeFile(pathFoto);
 
-                        frame = tramaSearchPicture(command->arguments[1], GetSizeFile(pathFoto), MD5Generate(pathFoto));
+                        frame = tramaSearchPicture(command->arguments[1], size, MD5Generate(pathFoto));
+
 
                         if (strcmp(frame, "1") == 0) {
                             write(STDOUT_FILENO, "ERROR: filename too big\n",
                                   sizeof(char) * strlen("ERROR: filename too big\n"));
-                        } else{
+                        } else {
 
                             write(atreides_fd, frame, 256);
 
-                            /* int photo_fd = open(pathFoto, O_RDONLY);
-                             char *dadesBinarias = malloc(240 * sizeof(*dadesBinarias));
+                            int photo_fd = open(pathFoto, O_RDONLY);
+                            char *dadesBinarias = malloc(240 * sizeof(*dadesBinarias));
 
-                             for (int z = 0; z < size / 240; z++) {
-                                 dadesBinarias = GEtBinari(photo_fd);
-                                 frame = sendDataPhoto(dadesBinarias);
-                                 write(atreides_fd, frame, 256);
-                             }
-                             close(photo_fd);*/
+                         /*   if ((size % 240) != 0) {
+                                number_frame = (size / 240) + 1;
+                            } else {
+                                number_frame = (size / 240);
+                            }*/
+
+                            for (int z = 0; z < 4; z++) {
+
+                                frame = sendDataPhoto(photo_fd);
+
+                                printf("%d\n", z);
+                                for (int j = 0; j < 256; j++) {
+                                    printf("%c-\n",frame[j]);
+                                }
+
+                                write(atreides_fd, frame, 256);
+
+                            }
+                            close(photo_fd);
 
                         }
 
@@ -298,28 +313,28 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
 
-				//CHeck if the user is logged in
-				if(is_logged){
-					
-				
-    	            frame = tramaFinishConeixion(username, id_user);
+                //CHeck if the user is logged in
+                if (is_logged) {
 
-					//send logout request
-					write(atreides_fd, frame, 256);
 
-					//Free memory up
-					free(frame);
+                    frame = tramaFinishConeixion(username, id_user);
 
-					//Close open socket
-					close(atreides_fd);
-				
-					printF("Desconnectat d’Atreides. Dew!\n");
-				
-					exit = 1;
-				} else {
-					printF("Has d'estar loguejat per executar aquesta comanda!\n");
-				}
-                
+                    //send logout request
+                    write(atreides_fd, frame, 256);
+
+                    //Free memory up
+                    free(frame);
+
+                    //Close open socket
+                    close(atreides_fd);
+
+                    printF("Desconnectat d’Atreides. Dew!\n");
+
+                    exit = 1;
+                } else {
+                    printF("Has d'estar loguejat per executar aquesta comanda!\n");
+                }
+
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",
                       sizeof(char) * strlen("Comanda KO. Massa paràmetres\n"));

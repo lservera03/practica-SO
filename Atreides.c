@@ -11,6 +11,8 @@ Users *users;
 
 void read_info_photo_send();
 
+void read_all_frame_photo();
+
 void RSI_SIGINT(){
 
 	
@@ -31,7 +33,6 @@ void RSI_SIGINT(){
 	raise(SIGINT);
 
 }
-
 
 
 char *readLine(int fd, char delimiter) {
@@ -97,14 +98,14 @@ void login_user(int fd, Frame frame) {
     for (int i = 0; i < users->last_id && !exit; i++) {
         if (strcmp(users->registered_users[i].username, parameters[0]) == 0) { //The user exists
 
-			id_user = users->registered_users[i].id;
+            id_user = users->registered_users[i].id;
 
-			//check if the postal code is the same as the registered one
-			if(strcmp(parameters[1], users->registered_users[i].postal_code) == 0){
-				correct = 1;
-			} else {
-				correct = 0;
-			}
+            //check if the postal code is the same as the registered one
+            if (strcmp(parameters[1], users->registered_users[i].postal_code) == 0) {
+                correct = 1;
+            } else {
+                correct = 0;
+            }
 
 
             exit = 1;
@@ -114,144 +115,196 @@ void login_user(int fd, Frame frame) {
 
     if (found == 0) { //The user is new
 
-		
-		//create new user
-		user.id = (users->last_id + 1);
 
-		id_user = user.id;
+        //create new user
+        user.id = (users->last_id + 1);
 
-		strcpy(user.postal_code, parameters[1]);
-		user.username = (char *) malloc(sizeof(char) * strlen(parameters[0]));
-		strcpy(user.username, parameters[0]);
+        id_user = user.id;
+
+        strcpy(user.postal_code, parameters[1]);
+        user.username = (char *) malloc(sizeof(char) * strlen(parameters[0]));
+        strcpy(user.username, parameters[0]);
 
 
-		add_user(user);
+        add_user(user);
 
     }
-	
-	//TODO if it is not correct send error frame
-	if(correct == 0){
-		trama = tramaConnectionFailed();	
-	} else {
-		trama = tramaConnectionCreated(id_user);
-	}	
+
+    //TODO if it is not correct send error frame
+    if (correct == 0) {
+        trama = tramaConnectionFailed();
+    } else {
+        trama = tramaConnectionCreated(id_user);
+    }
 
 
-	sprintf(string_output, "Assignat a ID %d\n", id_user);
+    sprintf(string_output, "Assignat a ID %d\n", id_user);
 
-	printF(string_output);
+    printF(string_output);
 
-	//send response
-	write(fd, trama, 256);
+    //send response
+    write(fd, trama, 256);
 
-	printF("Enviada resposta\n\n");
-
-}
-
-
-
-void search_users(int fd, Frame frame){
-	char *parameters[3];
-	char string_output[100];
-	int i = 0, counter = 0;
-	char data[240];
-	char aux[100];
-	char *trama;
-
-	
-	memset(aux, '\0', 100);
-	memset(data, '\0', 240);
-
-	//split frame.data to get parameters (postal_code)
-	char *p = strtok (frame.data, "*");
-
-
-    while (p != NULL){
-         parameters[i++] = p;
-         p = strtok (NULL, "*");
-    }	
-
-	sprintf(string_output, "Rebut search %s de %s %s\n", parameters[2], parameters[0], parameters[1]);
-
-	printF(string_output);
-	
-	//Clean string output
-	memset(string_output, '\0', strlen(string_output));
-
-	//search users witht that postal code
-	for(int j = 0; j < users->last_id; j++){
-		if(strcmp(users->registered_users[j].postal_code, parameters[2]) == 0){ //Find a user with that postal code
-			counter++;
-		}
-	}
-
-	printF("Feta la cerca\n");
-
-	sprintf(string_output, "Hi ha %d persones humanes a %s\n", counter, parameters[2]);
-
-	printF(string_output);
-
-
-	sprintf(data, "%d", counter);
-
-	//Clean string output
-	memset(string_output, '\0', strlen(string_output));
-
-	//Use another loop to not load the system with more memory to save the users
-	for(int j = 0; j < users->last_id; j++){
-		if(strcmp(users->registered_users[j].postal_code, parameters[2]) == 0){
-			sprintf(string_output, "%d %s\n", users->registered_users[j].id, users->registered_users[j].username);
-			printF(string_output);
-
-			//TODO allow to send more than 1 frame when it is too large
-			
-			sprintf(aux, "*%s*%d", users->registered_users[j].username,users->registered_users[j].id);
-			
-			strcat(data, aux);
-			
-			//Clean aux string
-			memset(aux, '0', 100);
-
-
-			//Clean string output
-			memset(string_output, '\0', strlen(string_output));
-		}
-	}
-
-	
-	trama = tramaSearchResponse(data);
-
-	// send response with the users found
-	write(fd, trama, 256);
-
-	printF("Enviada resposta\n");
-
+    printF("Enviada resposta\n\n");
 
 }
 
 
-void read_info_photo_send(Frame frame) {
+void search_users(int fd, Frame frame) {
+    char *parameters[3];
+    char string_output[100];
+    int i = 0, counter = 0;
+    char data[240];
+    char aux[100];
+    char *trama;
+
+
+    memset(aux, '\0', 100);
+    memset(data, '\0', 240);
+
+    //split frame.data to get parameters (postal_code)
+    char *p = strtok(frame.data, "*");
+
+
+    while (p != NULL) {
+        parameters[i++] = p;
+        p = strtok(NULL, "*");
+    }
+
+    sprintf(string_output, "Rebut search %s de %s %s\n", parameters[2], parameters[0], parameters[1]);
+
+    printF(string_output);
+
+    //Clean string output
+    memset(string_output, '\0', strlen(string_output));
+
+    //search users witht that postal code
+    for (int j = 0; j < users->last_id; j++) {
+        if (strcmp(users->registered_users[j].postal_code, parameters[2]) == 0) { //Find a user with that postal code
+            counter++;
+        }
+    }
+
+    printF("Feta la cerca\n");
+
+    sprintf(string_output, "Hi ha %d persones humanes a %s\n", counter, parameters[2]);
+
+    printF(string_output);
+
+
+    sprintf(data, "%d", counter);
+
+    //Clean string output
+    memset(string_output, '\0', strlen(string_output));
+
+    //Use another loop to not load the system with more memory to save the users
+    for (int j = 0; j < users->last_id; j++) {
+        if (strcmp(users->registered_users[j].postal_code, parameters[2]) == 0) {
+            sprintf(string_output, "%d %s\n", users->registered_users[j].id, users->registered_users[j].username);
+            printF(string_output);
+
+            //TODO allow to send more than 1 frame when it is too large
+
+            sprintf(aux, "*%s*%d", users->registered_users[j].username, users->registered_users[j].id);
+
+            strcat(data, aux);
+
+            //Clean aux string
+            memset(aux, '0', 100);
+
+
+            //Clean string output
+            memset(string_output, '\0', strlen(string_output));
+        }
+    }
+
+
+    trama = tramaSearchResponse(data);
+
+    // send response with the users found
+    write(fd, trama, 256);
+
+    printF("Enviada resposta\n");
+
+
+}
+
+void read_all_frame_photo(int fd) {
+    char frame_string[256], *parameters[1];
+    Frame frame;
+    int i=0;
+    char string_output[256];
+
+    read(fd, frame_string, (sizeof(char) * 256));
+
+    frame = createFrameFromString(frame_string);
+
+    char *p = strtok(frame.data, "*");
+
+    while (p != NULL) {
+        parameters[i++] = p;
+        p = strtok(NULL, "*");
+    }
+
+    sprintf(string_output, "Rebut 2 send %s \n", parameters[0]);
+
+    printF(string_output);
+
+}
+
+
+void data_photo_receive(char *size2/*, int fd*/) {
+    int user_id = 2;
+    int file_id = 0;
+
+    int size = atoi(size2) , number_frame;
+
+    char *name_file=(char *) malloc(sizeof(".jpg") + sizeof(user_id));
+    char *pathFoto =(char *) malloc(sizeof("atreides1/") + sizeof(name_file));
+
+
+    sprintf(name_file , "%d.jpg" , user_id);
+    sprintf(pathFoto  , "atreides1/%s" , name_file);
+
+    file_id = open( pathFoto ,O_CREAT | O_WRONLY | O_TRUNC, 0666);
+
+    if ((size % 240) != 0) {
+        number_frame = (size / 240) + 1;
+    } else {
+        number_frame = (size / 240);
+    }
+
+    for (int i = 0; i < number_frame ; i++) {
+       // read_all_frame_photo(fd);
+    }
+
+    close(file_id);
+
+}
+
+void read_info_photo_send(Frame frame /*, int fd*/) {
     char *parameters[3];
     int i = 0;
     char string_output[100];
 
     //split frame.data to get parameters (MD5SUM)
-    char *p = strtok (frame.data, "*");
+    char *p = strtok(frame.data, "*");
 
 
-    while (p != NULL){
+    while (p != NULL) {
         parameters[i++] = p;
-        p = strtok (NULL, "*");
+        p = strtok(NULL, "*");
     }
-
-	printf("HOLAAA\n");
-
-    sprintf(string_output, "Rebut foto %s mida %s hash %s\n", parameters[0], parameters[1], parameters[2]);
+    // todo cambiaar nombre y id usuario
+    sprintf(string_output, "Rebut send %s de %s %s\n", parameters[0], parameters[1], parameters[2]);
 
     printF(string_output);
 
     memset(string_output, '\0', strlen(string_output));
+
+    data_photo_receive(parameters[1]/*, fd*/);
 }
+
 
 
 void logout(Frame frame){
@@ -280,36 +333,36 @@ void logout(Frame frame){
 
 	//Let the thread kill itself
 	pthread_detach(pthread_self());
-    pthread_cancel(pthread_self());	
+    pthread_cancel(pthread_self());
 
 }
 
 
 void *run_thread(void *fd_client) {
-	int exit = 0;
+    int exit = 0;
     int fd = *((int *) fd_client);
     char frame_string[256];
-	Frame frame;
+    Frame frame;
 
 	while(!exit){
 	
 	    read(fd, frame_string, (sizeof(char) * 256));
 
 
-    	frame = createFrameFromString(frame_string);
+        frame = createFrameFromString(frame_string);
 
-    	switch (frame.type) {
-        	case 'C': //LOGIN
-            	login_user(fd, frame);
-            	break;
-			case 'S': //SEARCH
-				search_users(fd, frame);
-				break;
+        switch (frame.type) {
+            case 'C': //LOGIN
+                login_user(fd, frame);
+                break;
+            case 'S': //SEARCH
+                search_users(fd, frame);
+                break;
             case 'F': //SEND
-                read_info_photo_send(frame);
+                read_info_photo_send(frame /*, fd*/);
                 break;
 			case 'Q': //LOGOUT
-				logout(frame);	
+				logout(frame);
 				break;
 			default: //UNRECOGNIZED
 				break;
@@ -317,10 +370,9 @@ void *run_thread(void *fd_client) {
 	}
 
 	close(fd);
-    
+
 	return NULL;
 }
-
 
 
 int main(int argc, char *argv[]) {
@@ -330,9 +382,9 @@ int main(int argc, char *argv[]) {
 
 
     if (argc == 2) {
-		
-		//Assign SIGINT management to our function
-		signal(SIGINT, (void *) RSI_SIGINT);
+
+        //Assign SIGINT management to our function
+        signal(SIGINT, (void *) RSI_SIGINT);
 
         serverInfo = (ServerInfo *) malloc(sizeof(ServerInfo));
 
@@ -350,7 +402,7 @@ int main(int argc, char *argv[]) {
             }
 
             bzero(&servidor, sizeof(servidor));
-            servidor.sin_port = htons(8700); //Falla al posar-ho serverInfo-port 8715
+            servidor.sin_port = htons(8715); //Falla al posar-ho serverInfo-port 8715
             servidor.sin_family = AF_INET;
             servidor.sin_addr.s_addr = htons(INADDR_ANY);
 
@@ -362,12 +414,10 @@ int main(int argc, char *argv[]) {
                 printF("Error fent el listen\n");
             }
 
-			
-			//read users
-			users = (Users *) malloc(sizeof(Users));
-		    readUsers(users);
 
-
+            //read users
+            users = (Users *) malloc(sizeof(Users));
+            readUsers(users);
 
 
             while (1) {
@@ -396,8 +446,8 @@ int main(int argc, char *argv[]) {
               sizeof(char) * strlen("Has introduit massa arguments\n"));
     }
 
-	
-	raise(SIGINT);
+
+    raise(SIGINT);
 
     return 0;
 }
