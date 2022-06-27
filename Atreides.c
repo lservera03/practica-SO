@@ -228,6 +228,8 @@ void search_users(int fd, Frame frame){
 
 
 }
+
+
 void read_info_photo_send(Frame frame) {
     char *parameters[3];
     int i = 0;
@@ -252,14 +254,43 @@ void read_info_photo_send(Frame frame) {
 }
 
 
+void logout(Frame frame){
+	char *parameters[2];
+	char string_output[100];
+	int i = 0;
+
+    //split frame.data to get parameters (MD5SUM)
+    char *p = strtok (frame.data, "*");
+
+
+    while (p != NULL){
+        parameters[i++] = p;
+        p = strtok (NULL, "*");
+    }
+
+	sprintf(string_output, "Rebut logout de %s %s\n", parameters[0], parameters[1]);
+
+	printF(string_output);
+
+	//TODO all stuff necessary to keep the server stable
+
+	free(p);
+
+	printF("Desconnectat d'Atreides\n");
+
+	//Let the thread kill itself
+	pthread_detach(pthread_self());
+    pthread_cancel(pthread_self());	
+
+}
+
+
 void *run_thread(void *fd_client) {
 	int exit = 0;
     int fd = *((int *) fd_client);
     char frame_string[256];
 	Frame frame;
 
-
-	
 	while(!exit){
 	
 	    read(fd, frame_string, (sizeof(char) * 256));
@@ -275,13 +306,17 @@ void *run_thread(void *fd_client) {
 				search_users(fd, frame);
 				break;
             case 'F': //SEND
-
-                    read_info_photo_send(frame);
-
+                read_info_photo_send(frame);
                 break;
+			case 'Q': //LOGOUT
+				logout(frame);	
+				break;
+			default: //UNRECOGNIZED
+				break;
     	}
 	}
 
+	close(fd);
     
 	return NULL;
 }

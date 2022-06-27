@@ -15,8 +15,30 @@ char *username;
 
 void RSI_SIGINT() {
 
+	free(server_info);
+
+	if(is_logged){ //Send logout if the user is logged in 
+		char *trama;
+
+		trama = tramaFinishConeixion(username, id_user);
+		
+		write(atreides_fd, trama, 256);
+		
+		printF("Desconnectat d'Atreides. Dew!\n");
+		
+		free(trama);
+	}
+
+	free(username);
+
+	freeMemoryCommand();	
 
     close(atreides_fd);
+
+
+	//Let the system handle the SIGINT by default
+	signal(SIGINT, SIG_DFL);
+    raise(SIGINT);
 
 }
 
@@ -275,9 +297,29 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
             }
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
-                write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
-                frame = tramaFinishConeixion(command->arguments[1], id_user);
-                exit = 1;
+
+				//CHeck if the user is logged in
+				if(is_logged){
+					
+				
+    	            frame = tramaFinishConeixion(username, id_user);
+
+					//send logout request
+					write(atreides_fd, frame, 256);
+
+					//Free memory up
+					free(frame);
+
+					//Close open socket
+					close(atreides_fd);
+				
+					printF("Desconnectat d’Atreides. Dew!\n");
+				
+					exit = 1;
+				} else {
+					printF("Has d'estar loguejat per executar aquesta comanda!\n");
+				}
+                
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Massa paràmetres\n",
                       sizeof(char) * strlen("Comanda KO. Massa paràmetres\n"));

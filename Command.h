@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <signal.h>
 #include "ServerInfo.h"
 #include "Frame.h"
 #include <sys/wait.h>

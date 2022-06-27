@@ -16,10 +16,6 @@ ServerInfo *serverInfo;
 
 void end() {
 
-    if (serverInfo != NULL) {
-        free(serverInfo);
-    }
-    freeMemoryCommand();
 
 	RSI_SIGINT();
 
