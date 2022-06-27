@@ -2,7 +2,7 @@
 
 
 int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
-    int fd, i, positions, final, correct;
+    int fd, i, positions, final, correct, first = 1;
     char character;
     char *buffer = NULL;
 
@@ -24,9 +24,10 @@ int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
 
                 buffer[i] = '\0';
 
-                if (config == ATREIDES_CONFIG) { //In case we are reading config file of Atreides
+                if (config == ATREIDES_CONFIG && first == 1) { //In case we are reading config file of Atreides
                     positions++;
                     serverInfo->seconds = -1;
+					first = 0;
                 }
 
                 switch (positions) {

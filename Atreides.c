@@ -312,7 +312,7 @@ void logout(Frame frame){
 	char string_output[100];
 	int i = 0;
 
-    //split frame.data to get parameters (MD5SUM)
+    //split frame.data to get parameters
     char *p = strtok (frame.data, "*");
 
 
@@ -334,6 +334,53 @@ void logout(Frame frame){
 	//Let the thread kill itself
 	pthread_detach(pthread_self());
     pthread_cancel(pthread_self());
+
+}
+
+
+void send_user_photo(int fd, Frame frame){
+	char string_output[100];
+	char *path, *trama;
+	char aux[50];
+	int id_user_photo;
+
+	strcpy(aux, frame.data);
+
+	id_user_photo = atoi(frame.data);
+	
+	//TODO know the user by the fd
+
+	sprintf(string_output, "Rebut photo %d\n", id_user_photo);
+	
+	printF(string_output);
+
+	path = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(aux)));
+
+	//create path
+	sprintf(path, ".%s/%s.jpg", serverInfo->directory, aux);
+
+	//TODO create Atreides directory if not exists
+
+	//check if the photo exists
+	if(access(path, F_OK) == 0){ //photo exists
+		printF("EXISTE");	
+
+		//TODO send picture
+
+	} else { //photo does not exists
+		
+		printF("No hi ha foto registrada.\n");
+
+		trama = tramaPhotoNotFound();
+
+		//send photo not found frame
+		write(fd, trama, 256);
+
+	}
+
+	printF("Enviada resposta\n");
+
+	//TODO free memory used
 
 }
 
@@ -361,6 +408,9 @@ void *run_thread(void *fd_client) {
             case 'F': //SEND
                 read_info_photo_send(frame /*, fd*/);
                 break;
+			case 'P': //PHOTO
+				send_user_photo(fd, frame);
+				break;
 			case 'Q': //LOGOUT
 				logout(frame);
 				break;
@@ -397,12 +447,13 @@ int main(int argc, char *argv[]) {
             write(STDOUT_FILENO, "Llegit el fitxer de configuració\n",
                   sizeof(char) * strlen("Llegit el fitxer de configuració\n"));
 
+
             if ((listenFD = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
                 printF("Error creant el socket\n");
             }
 
             bzero(&servidor, sizeof(servidor));
-            servidor.sin_port = htons(8715); //Falla al posar-ho serverInfo-port 8715
+            servidor.sin_port = htons(serverInfo->port);
             servidor.sin_family = AF_INET;
             servidor.sin_addr.s_addr = htons(INADDR_ANY);
 

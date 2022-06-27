@@ -86,6 +86,23 @@ char *tramaConnectionFailed() {
     return trama;
 }
 
+
+char *tramaPhotoNotFound() {
+    char *trama;
+    
+	char *dades = (char *) malloc(sizeof(char) * strlen("FILE NOT FOUND"));
+
+    trama = createOrigin("ATREIDES");
+    trama[15] = 'F';
+
+    sprintf(dades, "%s", "FILE NOT FOUND");
+
+    trama = completeDataTrama(trama, dades);
+
+
+    return trama;
+}
+
 char *tramaFinishConeixion(char *name, int id_user) {
     char *trama;
     char aux[50];
@@ -160,7 +177,7 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     return trama;
 }
 
-char *tramaPhotoPeticion(char *id) {
+char *tramaPhotoRequest(char *id) {
     char *trama;
     char *dades = (char *) malloc(sizeof(id));
 

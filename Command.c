@@ -241,6 +241,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                 if (command->num_arguments == 2) {
 
+					//TODO change path with server_info path
+
                     char *pathFoto = (char *) malloc(sizeof(strlen("fremen1/")) + sizeof(command->arguments[1]));
 
                     sprintf(pathFoto, "fremen1/%s", command->arguments[1]);
@@ -302,9 +304,36 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
         } else if (strcmp(upper, "PHOTO") == 0) {
             if (command->num_arguments == 2) {
-                write(STDOUT_FILENO, "Comanda OK\n", sizeof(char) * strlen("Comanda OK\n"));
 
-                frame = tramaPhotoPeticion(command->arguments[1]);
+
+				if(is_logged){
+				
+
+					//TODO check the argument is a number
+
+
+    	            frame = tramaPhotoRequest(command->arguments[1]);
+
+					//Send frame requesting the picture
+					write(atreides_fd, frame, 256);
+
+					//Wait for response from Atreides
+					read(atreides_fd, frame_string, sizeof(char) * 256);
+
+					
+					frame_struct = createFrameFromString(frame_string);
+
+					//check if the photo is found
+					if(strcmp(frame_struct.data, "FILE NOT FOUND") == 0){
+						printF("No hi ha foto registrada.\n");
+					} else {
+						
+					}
+
+				
+				} else {
+					printF("Has d'estar loguejat per executar aquesta comanda!\n");
+				}
 
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
