@@ -11,7 +11,7 @@ Users *users;
 
 void read_info_photo_send();
 
-void read_all_frame_photo();
+char *read_all_frame_photo();
 
 void RSI_SIGINT(){
 
@@ -229,11 +229,10 @@ void search_users(int fd, Frame frame) {
 
 }
 
-void read_all_frame_photo(int fd) {
+char *read_all_frame_photo(int fd) {
     char frame_string[256], *parameters[1];
     Frame frame;
     int i=0;
-    char string_output[256];
 
     read(fd, frame_string, (sizeof(char) * 256));
 
@@ -246,16 +245,14 @@ void read_all_frame_photo(int fd) {
         p = strtok(NULL, "*");
     }
 
-    sprintf(string_output, "Rebut 2 send %s \n", parameters[0]);
-
-    printF(string_output);
+    return parameters[0];
 
 }
 
 
-void data_photo_receive(char *size2/*, int fd*/) {
+void data_photo_receive(char *size2, int fd) {
     int user_id = 2;
-    int file_id = 0;
+    int file_id = 0 , bytes;
 
     int size = atoi(size2) , number_frame;
 
@@ -270,19 +267,32 @@ void data_photo_receive(char *size2/*, int fd*/) {
 
     if ((size % 240) != 0) {
         number_frame = (size / 240) + 1;
+        bytes = size - ((number_frame -1) *240) ;
     } else {
         number_frame = (size / 240);
+        bytes = 0;
     }
 
+    printf("bytesssss %d\n",bytes);
+
+
     for (int i = 0; i < number_frame ; i++) {
-       // read_all_frame_photo(fd);
+
+        if (i == number_frame && bytes !=0){
+            printf("bien \n");
+            write(file_id, read_all_frame_photo(fd),bytes);
+        } else{
+            // todo arreglar guardar datos
+            write(file_id, read_all_frame_photo(fd),240);
+        }
+
     }
 
     close(file_id);
 
 }
 
-void read_info_photo_send(Frame frame /*, int fd*/) {
+void read_info_photo_send(Frame frame , int fd) {
     char *parameters[3];
     int i = 0;
     char string_output[100];
@@ -302,7 +312,7 @@ void read_info_photo_send(Frame frame /*, int fd*/) {
 
     memset(string_output, '\0', strlen(string_output));
 
-    data_photo_receive(parameters[1]/*, fd*/);
+    data_photo_receive(parameters[1], fd);
 }
 
 
@@ -420,7 +430,7 @@ void *run_thread(void *fd_client) {
                 search_users(fd, frame);
                 break;
             case 'F': //SEND
-                read_info_photo_send(frame /*, fd*/);
+                read_info_photo_send(frame , fd);
                 break;
 			case 'P': //PHOTO
 				send_user_photo(fd, frame);
