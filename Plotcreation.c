@@ -238,6 +238,23 @@ char *completeDataPhoto(char *trama, char buffer[240]){
 }
 
 
+
+char *sendDataPhotoAtreides(int photo_fd){
+	char *trama;
+
+	trama = createOrigin("ATREIDES");
+	trama[15] = 'D';
+
+	char buffer[240];
+
+	read(photo_fd, buffer, 240);
+
+	trama = completeDataPhoto(trama, buffer);
+	
+	return trama;
+}
+
+
 char *sendDataPhoto(int photo_fd) {
     char *trama;
     //char *dadesBinarias = GEtBinari(photo_fd);

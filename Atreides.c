@@ -230,7 +230,7 @@ void search_users(int fd, Frame frame) {
 }
 
 void data_photo_receive(char *size2, int fd) {
-    int user_id = 3;
+    int user_id = 4;
     int file_id = 0;//, bytes;
 	char frame_string[256];
 	Frame frame;
@@ -239,11 +239,11 @@ void data_photo_receive(char *size2, int fd) {
     int number_frame;
 
     char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user_id));
-    char *pathFoto = (char *) malloc(sizeof("atreides1") + sizeof(name_file));
+    char *pathFoto = (char *) malloc(sizeof("Atreides") + sizeof(name_file));
 
 
     sprintf(name_file, "%d.jpg", user_id);
-    sprintf(pathFoto, "atreides1/%s", name_file);
+    sprintf(pathFoto, "Atreides/%s", name_file);
 
     file_id = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
@@ -333,7 +333,7 @@ void send_user_photo(int fd, Frame frame) {
     char string_output[100];
     char *path, *trama, *filename;
     char aux[50];
-    int id_user_photo, size;
+    int id_user_photo, size, file, num_frames;
 
     strcpy(aux, frame.data);
 
@@ -368,9 +368,36 @@ void send_user_photo(int fd, Frame frame) {
 
         //TODO check why trama is not correct
 
-        for (int i = 0; i < 256; i++) {
-            printf("%c\n", trama[i]);
-        }
+		write(fd, trama, 256);
+
+		memset(string_output, '\0', 100);
+
+		sprintf(string_output, "Enviament %d.jpg\n", id_user_photo);
+
+		printF(string_output);
+
+		//calculate number of frames to send
+		num_frames = size / 240;
+
+		if((size % 240) != 0){ //THe last frame might be shorter
+			num_frames++;
+		}
+
+		//open file and read picture
+		file = open(path, O_RDONLY);
+
+		memset(trama, 0, strlen(trama));
+
+		for(int i = 0; i < num_frames; i++){ //send picture frame by frame
+	
+
+			trama = sendDataPhotoAtreides(file);
+			write(fd, trama, 256);
+
+		}
+		
+		close(file);
+
 
     } else { //photo does not exists
 
@@ -384,6 +411,7 @@ void send_user_photo(int fd, Frame frame) {
     }
 
     printF("Enviada resposta\n");
+
 
     //TODO free memory used
 

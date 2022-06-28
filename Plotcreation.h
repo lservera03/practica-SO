@@ -43,6 +43,8 @@ char *tramaPhotoNotFound();
 
 char *sendDataPhoto(int photo_fd);
 
+char *sendDataPhotoAtreides(int photo_fd);
+
 char *MD5Generate(char *pathFoto);
 
 int GetSizeFile (char *pathFoto);

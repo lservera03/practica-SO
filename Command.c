@@ -318,11 +318,87 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                     frame_struct = createFrameFromString(frame_string);
 
+
                     //check if the photo is found
                     if (strcmp(frame_struct.data, "FILE NOT FOUND") == 0) {
                         printF("No hi ha foto registrada.\n");
                     } else {
 
+
+						//Split frame.data to get photo info
+						char *p = strtok(frame_struct.data, "*");
+						char *parameters[3];
+						char *pathFoto;
+						char originalMD5[32], filename[30];
+						int i = 0, size, num_frames, file, last_frame_short = 0;
+
+
+						while(p != NULL){
+							parameters[i++] = p;
+							p = strtok(NULL, "*");
+						}
+
+						size = atoi(parameters[1]);
+
+						strcpy(originalMD5, parameters[2]);
+
+
+						strcpy(filename, parameters[0]);
+
+
+						//calculate number of frames
+						num_frames = size / 240;
+						
+						if((num_frames % 240) != 0){
+							num_frames++;
+							last_frame_short = 1;
+						}
+
+						//TODO create directory at the beginning of the execution
+						
+						//create path of the picture
+						pathFoto = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(filename) + 2));
+						
+						sprintf(pathFoto, ".%s/%s", serverInfo->directory, filename);
+
+
+						//open file to save picture
+						file = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
+
+
+						//read photo frame by frame
+						for(int i = 0; i < num_frames; i++){
+						
+							read(atreides_fd, frame_string, 256);
+
+							frame_struct = createFrameFromString(frame_string);
+
+
+							if(i == (num_frames - 1) && last_frame_short){ //LAST FRAME
+								write(file, frame_struct.data, size % 240);
+							} else {
+								write(file, frame_struct.data, 240);
+							}
+
+							memset(frame_string, 0, strlen(frame_string));
+
+						}						
+
+						close(file);
+
+						//check MD5SUM is correct
+						if(strcmp(MD5Generate(pathFoto), originalMD5) == 0){
+							printf("FOTO CORRECTA\n");
+
+							//TODO send correct photo frame
+						} else {
+							printf("FOTO INCORRECTA\n");
+							//TODO send incorrect photo frame
+						}
+
+						memset(filename, '\0', strlen(filename));
+						free(p);
+						free(pathFoto);
                     }
 
 
@@ -353,6 +429,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     close(atreides_fd);
 
                     printF("Desconnectat d’Atreides. Dew!\n");
+
+					is_logged = 0;
 
                     exit = 1;
                 } else {
