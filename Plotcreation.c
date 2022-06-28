@@ -7,9 +7,12 @@
 
 
 char *createOrigin(char string[]) {
-    char *trama = malloc(256 * sizeof(char));
-    strcpy(trama, string);
+    char *trama = (char * )malloc(sizeof(char) * 256);
 
+    //memset(trama, 0, sizeof(char) * 256);
+
+
+    sprintf(trama, "%s", string);
 
     for (int i = strlen(string); i < 15; i++) {
         trama[i] = '\0';
@@ -201,8 +204,8 @@ char *tramaSearchResponse(char *string) {
 
 
 char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
-    char *trama=(char * ) malloc(sizeof(char) * 256);;
-    memset(trama, 0, 256 * sizeof(char));
+    char *trama;
+
     char *dades = (char *) malloc(sizeof(nameFichero) + sizeof(size) + sizeof(MD5SUM));
 
     if (strlen(nameFichero) > 30) return "1";
