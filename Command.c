@@ -80,7 +80,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     int number_frame;
 
     exit = 0;
-    is_logged = 1;
+
 
     server_info = serverInfo;
 
