@@ -206,7 +206,7 @@ char *tramaSearchResponse(char *string) {
 char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     char *trama;
 
-    char *dades = (char *) malloc(sizeof(nameFichero) + sizeof(size) + sizeof(MD5SUM));
+    char *dades = (char *) malloc(sizeof(char) * (strlen(nameFichero) + sizeof(size) + strlen(MD5SUM) + 2));
 
     if (strlen(nameFichero) > 30) return "1";
     if (strlen(MD5SUM) > 32) return "2";
@@ -214,25 +214,10 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     trama = createOrigin("FREMEN");
     trama[15] = 'F';
 
-    for (int j = 0; j < 16; j++) {
-        printf("%c-\n",trama[j]);
-    }
-
     sprintf(dades, "%s*%d*%s", nameFichero, size, MD5SUM);
-
-    printf("++++++++++++++++++++++++++\n");
-
-    for (int j = 0; j < 16; j++) {
-        printf("%c-\n",trama[j]);
-    }
 
     trama = completeDataTrama(trama, dades);
 
-    printf("-------------\n");
-
-    for (int j = 0; j < 16; j++) {
-        printf("%c-\n",trama[j]);
-    }
     return trama;
 }
 
