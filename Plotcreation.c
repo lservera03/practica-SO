@@ -225,6 +225,19 @@ char *tramaPhotoRequest(char *id) {
     return trama;
 }
 
+
+
+char *completeDataPhoto(char *trama, char buffer[240]){
+
+	for(int i = 0; i < 240; i++){
+		trama[i + 16] = buffer[i];
+	}
+
+
+	return trama;
+}
+
+
 char *sendDataPhoto(int photo_fd) {
     char *trama;
     char *dadesBinarias = GEtBinari(photo_fd);
@@ -232,15 +245,17 @@ char *sendDataPhoto(int photo_fd) {
     trama = createOrigin("FREMEN");
     trama[15] = 'D';
 
-    trama = compleDataTramaPhoto(trama, dadesBinarias);
+	char buffer[240];
 
-//    for (int f = 0; f < 256 ; f++) {
-//        printf("%c -\n",trama[f]);
-//    }
-//    printf("--------------------\n");
+	read(photo_fd, buffer, 240);
+
+    trama = completeDataPhoto(trama, buffer);
+
 
     return trama;
 }
+
+
 
 char *MD5Generate(char *pathFoto) {
     pid_t pid = 0;
