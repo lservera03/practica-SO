@@ -228,29 +228,6 @@ void search_users(int fd, Frame frame) {
 
 
 }
-/**
-char *read_all_frame_photo(int fd) {
-    char frame_string[256];
-	char *data;
-    Frame frame;
-
-    read(fd, frame_string, (sizeof(char) * 256));
-
-    frame = createFrameFromString(frame_string);
-
-    char *data = malloc(sizeof(char) * strlen(frame.data));
-
-    strcpy(data, frame.data);
-
-//    for (int i = 0; i < 240; i++) {
-//        printf("%c -\n", data[i]);
-//    }
-//    printf("--------------------\n");
-
-    return strtok(frame.data, '*');
-
-}
-**/
 
 void data_photo_receive(char *size2, int fd) {
     int user_id = 3;
@@ -262,11 +239,11 @@ void data_photo_receive(char *size2, int fd) {
     int number_frame;
 
     char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user_id));
-    char *pathFoto = (char *) malloc(sizeof("Atreides") + sizeof(name_file));
+    char *pathFoto = (char *) malloc(sizeof("atreides1") + sizeof(name_file));
 
 
     sprintf(name_file, "%d.jpg", user_id);
-    sprintf(pathFoto, "Atreides/%s", name_file);
+    sprintf(pathFoto, "atreides1/%s", name_file);
 
     file_id = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
@@ -281,10 +258,7 @@ void data_photo_receive(char *size2, int fd) {
     for (int i = 0; i < number_frame; i++) {
 
 		read(fd, frame_string, 256);
-
-
 		frame = createFrameFromString(frame_string);
-		
 
         if (i == (number_frame - 1)) {
             write(file_id, frame.data, size % 240);
@@ -295,7 +269,6 @@ void data_photo_receive(char *size2, int fd) {
     }
 
     close(file_id);
-
 
     printF(MD5Generate(pathFoto));
 

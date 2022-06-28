@@ -240,7 +240,7 @@ char *completeDataPhoto(char *trama, char buffer[240]){
 
 char *sendDataPhoto(int photo_fd) {
     char *trama;
-    char *dadesBinarias = GEtBinari(photo_fd);
+    //char *dadesBinarias = GEtBinari(photo_fd);
 
     trama = createOrigin("FREMEN");
     trama[15] = 'D';
