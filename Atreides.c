@@ -13,24 +13,24 @@ void read_info_photo_send();
 
 char *read_all_frame_photo();
 
-void RSI_SIGINT(){
-
-	
-	//TODO here free all memory and try to keep system stable
-
-	
-
-	//save users
-	writeUsers(users);
-	
-	//Close socket
-	close(listenFD);
+void RSI_SIGINT() {
 
 
-	//set default RSI for SIGINT
-	signal(SIGINT, SIG_DFL);
-	//send SIGINT and let the default RSI handle it
-	raise(SIGINT);
+    //TODO here free all memory and try to keep system stable
+
+
+
+    //save users
+    writeUsers(users);
+
+    //Close socket
+    close(listenFD);
+
+
+    //set default RSI for SIGINT
+    signal(SIGINT, SIG_DFL);
+    //send SIGINT and let the default RSI handle it
+    raise(SIGINT);
 
 }
 
@@ -55,44 +55,44 @@ char *readLine(int fd, char delimiter) {
 }
 
 
-void add_user(User user){
-	
-
-	//Make space for the new user
-	users->registered_users = (User *) realloc(users->registered_users, (((users->last_id + 1)) * sizeof(User)));
+void add_user(User user) {
 
 
-	//Save new user
-	users->registered_users[users->last_id].id = user.id;
-	strcpy(users->registered_users[users->last_id].postal_code, user.postal_code);
-	users->registered_users[users->last_id].username = (char *) malloc(sizeof(char) * strlen(user.username));
-	strcpy(users->registered_users[users->last_id].username, user.username);
+    //Make space for the new user
+    users->registered_users = (User *) realloc(users->registered_users, (((users->last_id + 1)) * sizeof(User)));
 
-	//Add +1 to the user counter
-	users->last_id = (users->last_id + 1);
-	
+
+    //Save new user
+    users->registered_users[users->last_id].id = user.id;
+    strcpy(users->registered_users[users->last_id].postal_code, user.postal_code);
+    users->registered_users[users->last_id].username = (char *) malloc(sizeof(char) * strlen(user.username));
+    strcpy(users->registered_users[users->last_id].username, user.username);
+
+    //Add +1 to the user counter
+    users->last_id = (users->last_id + 1);
+
 }
 
 
 void login_user(int fd, Frame frame) {
     int correct = -1, exit = 0, found = 0, i = 0, id_user;
-	char *trama;
-	char string_output[100];
-	User user;
-	char *parameters[2];
+    char *trama;
+    char string_output[100];
+    User user;
+    char *parameters[2];
 
     //split frame.data to get username
-    char *p = strtok (frame.data, "*");
-    
-   	while (p != NULL){
-       	parameters[i++] = p;
-       	p = strtok (NULL, "*");
-   	}
-			
+    char *p = strtok(frame.data, "*");
 
-	sprintf(string_output, "Rebut login %s %s\n", parameters[0], parameters[1]);
+    while (p != NULL) {
+        parameters[i++] = p;
+        p = strtok(NULL, "*");
+    }
 
-	printF(string_output);
+
+    sprintf(string_output, "Rebut login %s %s\n", parameters[0], parameters[1]);
+
+    printF(string_output);
 
     //Check if the user is already registered
     for (int i = 0; i < users->last_id && !exit; i++) {
@@ -232,7 +232,7 @@ void search_users(int fd, Frame frame) {
 char *read_all_frame_photo(int fd) {
     char frame_string[256], *parameters[1];
     Frame frame;
-    int i=0;
+    int i = 0;
 
     read(fd, frame_string, (sizeof(char) * 256));
 
@@ -252,47 +252,45 @@ char *read_all_frame_photo(int fd) {
 
 void data_photo_receive(char *size2, int fd) {
     int user_id = 2;
-    int file_id = 0 , bytes;
+    int file_id = 0, bytes;
 
-    int size = atoi(size2) , number_frame;
+    int size = atoi(size2), number_frame;
 
-    char *name_file=(char *) malloc(sizeof(".jpg") + sizeof(user_id));
-    char *pathFoto =(char *) malloc(sizeof("atreides1/") + sizeof(name_file));
+    char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user_id));
+    char *pathFoto = (char *) malloc(sizeof("atreides1/") + sizeof(name_file));
 
 
-    sprintf(name_file , "%d.jpg" , user_id);
-    sprintf(pathFoto  , "atreides1/%s" , name_file);
+    sprintf(name_file, "%d.jpg", user_id);
+    sprintf(pathFoto, "atreides1/%s", name_file);
 
-    file_id = open( pathFoto ,O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    file_id = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
     if ((size % 240) != 0) {
         number_frame = (size / 240) + 1;
-        bytes = size - ((number_frame -1) *240) ;
+        bytes = size - ((number_frame - 1) * 240);
     } else {
         number_frame = (size / 240);
         bytes = 0;
     }
 
-    printf("bytesssss %d\n",bytes);
+    for (int i = 0; i < number_frame; i++) {
 
-
-    for (int i = 0; i < number_frame ; i++) {
-
-        if (i == number_frame && bytes !=0){
-            printf("bien \n");
-            write(file_id, read_all_frame_photo(fd),bytes);
-        } else{
-            // todo arreglar guardar datos
-            write(file_id, read_all_frame_photo(fd),240);
+        if (i == (number_frame - 1)) {
+            write(file_id, read_all_frame_photo(fd), bytes);
+        } else {
+            write(file_id, read_all_frame_photo(fd), 240);
         }
 
     }
 
     close(file_id);
 
+
+    printF(MD5Generate(pathFoto));
+
 }
 
-void read_info_photo_send(Frame frame , int fd) {
+void read_info_photo_send(Frame frame, int fd) {
     char *parameters[3];
     int i = 0;
     char string_output[100];
@@ -316,95 +314,94 @@ void read_info_photo_send(Frame frame , int fd) {
 }
 
 
-
-void logout(Frame frame){
-	char *parameters[2];
-	char string_output[100];
-	int i = 0;
+void logout(Frame frame) {
+    char *parameters[2];
+    char string_output[100];
+    int i = 0;
 
     //split frame.data to get parameters
-    char *p = strtok (frame.data, "*");
+    char *p = strtok(frame.data, "*");
 
 
-    while (p != NULL){
+    while (p != NULL) {
         parameters[i++] = p;
-        p = strtok (NULL, "*");
+        p = strtok(NULL, "*");
     }
 
-	sprintf(string_output, "Rebut logout de %s %s\n", parameters[0], parameters[1]);
+    sprintf(string_output, "Rebut logout de %s %s\n", parameters[0], parameters[1]);
 
-	printF(string_output);
+    printF(string_output);
 
-	//TODO all stuff necessary to keep the server stable
+    //TODO all stuff necessary to keep the server stable
 
-	free(p);
+    free(p);
 
-	printF("Desconnectat d'Atreides\n");
+    printF("Desconnectat d'Atreides\n");
 
-	//Let the thread kill itself
-	pthread_detach(pthread_self());
+    //Let the thread kill itself
+    pthread_detach(pthread_self());
     pthread_cancel(pthread_self());
 
 }
 
 
-void send_user_photo(int fd, Frame frame){
-	char string_output[100];
-	char *path, *trama, *filename;
-	char aux[50];
-	int id_user_photo, size;
+void send_user_photo(int fd, Frame frame) {
+    char string_output[100];
+    char *path, *trama, *filename;
+    char aux[50];
+    int id_user_photo, size;
 
-	strcpy(aux, frame.data);
+    strcpy(aux, frame.data);
 
-	filename = (char *) malloc(sizeof(char) * (strlen(aux) + strlen(".jpg")));
+    filename = (char *) malloc(sizeof(char) * (strlen(aux) + strlen(".jpg")));
 
-	sprintf(filename, "%s.jpg", aux);
+    sprintf(filename, "%s.jpg", aux);
 
-	id_user_photo = atoi(frame.data);
-	
-	//TODO know the user by the fd
+    id_user_photo = atoi(frame.data);
 
-	sprintf(string_output, "Rebut photo %d\n", id_user_photo);
-	
-	printF(string_output);
+    //TODO know the user by the fd
 
-	path = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(aux)));
+    sprintf(string_output, "Rebut photo %d\n", id_user_photo);
 
-	//create path
-	sprintf(path, ".%s/%s.jpg", serverInfo->directory, aux);
+    printF(string_output);
 
-	//TODO create Atreides directory if not exists
+    path = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(aux)));
 
-	//check if the photo exists
-	if(access(path, F_OK) == 0){ //photo exists
+    //create path
+    sprintf(path, ".%s/%s.jpg", serverInfo->directory, aux);
 
-		//TODO send picture
-		size = GetSizeFile(path);
+    //TODO create Atreides directory if not exists
 
-		trama = tramaPhotoPicture(filename, size, MD5Generate(path));
+    //check if the photo exists
+    if (access(path, F_OK) == 0) { //photo exists
 
-		//TODO check trama correcta (1, 2)
+        //TODO send picture
+        size = GetSizeFile(path);
 
-		//TODO check why trama is not correct
+        trama = tramaPhotoPicture(filename, size, MD5Generate(path));
 
-		for(int i = 0; i < 256; i++){
-			printf("%c\n", trama[i]);
-		}
+        //TODO check trama correcta (1, 2)
 
-	} else { //photo does not exists
-		
-		printF("No hi ha foto registrada.\n");
+        //TODO check why trama is not correct
 
-		trama = tramaPhotoNotFound();
+        for (int i = 0; i < 256; i++) {
+            printf("%c\n", trama[i]);
+        }
 
-		//send photo not found frame
-		write(fd, trama, 256);
+    } else { //photo does not exists
 
-	}
+        printF("No hi ha foto registrada.\n");
 
-	printF("Enviada resposta\n");
+        trama = tramaPhotoNotFound();
 
-	//TODO free memory used
+        //send photo not found frame
+        write(fd, trama, 256);
+
+    }
+
+    printF("Enviada resposta\n");
+
+    //TODO free memory used
 
 }
 
@@ -415,9 +412,9 @@ void *run_thread(void *fd_client) {
     char frame_string[256];
     Frame frame;
 
-	while(!exit){
-	
-	    read(fd, frame_string, (sizeof(char) * 256));
+    while (!exit) {
+
+        read(fd, frame_string, (sizeof(char) * 256));
 
 
         frame = createFrameFromString(frame_string);
@@ -430,22 +427,22 @@ void *run_thread(void *fd_client) {
                 search_users(fd, frame);
                 break;
             case 'F': //SEND
-                read_info_photo_send(frame , fd);
+                read_info_photo_send(frame, fd);
                 break;
-			case 'P': //PHOTO
-				send_user_photo(fd, frame);
-				break;
-			case 'Q': //LOGOUT
-				logout(frame);
-				break;
-			default: //UNRECOGNIZED
-				break;
-    	}
-	}
+            case 'P': //PHOTO
+                send_user_photo(fd, frame);
+                break;
+            case 'Q': //LOGOUT
+                logout(frame);
+                break;
+            default: //UNRECOGNIZED
+                break;
+        }
+    }
 
-	close(fd);
+    close(fd);
 
-	return NULL;
+    return NULL;
 }
 
 

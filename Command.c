@@ -262,6 +262,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                         } else {
 
                             write(atreides_fd, frame, 256);
+
                             int photo_fd = open(pathFoto, O_RDONLY);
 
                             if ((size % 240) != 0) {
@@ -274,8 +275,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                                 frame = sendDataPhoto(photo_fd);
 
-                                write(atreides_fd, frame, 240);
-
+                                write(atreides_fd, frame, 256);
 
                             }
                             close(photo_fd);
