@@ -26,6 +26,10 @@ char *tramaConnectionCreated(int id);
 
 char *tramaConnectionFailed();
 
+char *tramaPhotoCorrect();
+
+char *tramaPhotoNotCorrect();
+
 char *tramaFinishConeixion(char *name, int id_user);
 
 char *tramaSearch(char *name, int id_user, char *codipostal);

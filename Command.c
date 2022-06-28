@@ -386,12 +386,25 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 						//check MD5SUM is correct
 						if(strcmp(MD5Generate(pathFoto), originalMD5) == 0){
-							printf("FOTO CORRECTA\n");
 
-							//TODO send correct photo frame
+							printF("Foto descarregada\n");
+
+							memset(frame, 0, strlen(frame));
+
+							//send  photo frame correct
+							frame = tramaPhotoCorrect();
+
+							write(atreides_fd, frame, 256);
 						} else {
-							printf("FOTO INCORRECTA\n");
-							//TODO send incorrect photo frame
+							printF("Ha ocorregut un error durant la descarrega de la foto\n");
+							
+							//send incorrect photo frame
+
+							memset(frame, 0, strlen(frame));
+
+							frame = tramaPhotoNotCorrect();
+
+							write(atreides_fd, frame, 256);
 						}
 
 						memset(filename, '\0', strlen(filename));

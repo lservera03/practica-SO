@@ -51,6 +51,42 @@ char *tramaStartConexion(char *nom, char *codipostal) {
     return trama;
 }
 
+
+
+char *tramaPhotoCorrect() {
+    char *trama;
+    char *dades = (char *) malloc(sizeof(char) + strlen("IMAGE OK"));
+
+    trama = createOrigin("FREMEN");
+    trama[15] = 'I';
+
+	strcpy(dades, "IMAGE OK");
+	
+    trama = completeDataTrama(trama, dades);
+
+
+    return trama;
+}
+
+
+
+char *tramaPhotoNotCorrect() {
+    char *trama;
+    char *dades = (char *) malloc(sizeof(char) + strlen("IMAGE KO"));
+
+    trama = createOrigin("FREMEN");
+    trama[15] = 'R';
+
+	strcpy(dades, "IMAGE KO");
+	
+    trama = completeDataTrama(trama, dades);
+
+
+    return trama;
+}
+
+
+
 char *tramaConnectionCreated(int id) {
     char *trama;
     char aux[20];
