@@ -269,6 +269,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                 number_frame = (size / 240) + 1;
                             } else {
                                 number_frame = (size / 240);
+                                printf("%d\n",number_frame);
                             }
 
                             for (int z = 0; z < number_frame; z++) {
@@ -276,7 +277,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                 frame = sendDataPhoto(photo_fd);
 
                                 write(atreides_fd, frame, 256);
-
+                                usleep(300);
                             }
                             close(photo_fd);
 

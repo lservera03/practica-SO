@@ -224,6 +224,11 @@ char *sendDataPhoto(int photo_fd) {
 
     trama = completeDataTrama(trama, dadesBinarias);
 
+//    for (int f = 16; f < 256 ; f++) {
+//        printf("%c -\n",trama[f]);
+//    }
+//    printf("--------------------\n");
+
     return trama;
 }
 

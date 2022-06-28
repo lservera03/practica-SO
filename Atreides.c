@@ -230,22 +230,23 @@ void search_users(int fd, Frame frame) {
 }
 
 char *read_all_frame_photo(int fd) {
-    char frame_string[256], *parameters[1];
+    char frame_string[256];
     Frame frame;
-    int i = 0;
 
     read(fd, frame_string, (sizeof(char) * 256));
 
     frame = createFrameFromString(frame_string);
 
-    char *p = strtok(frame.data, "*");
+    char *data = malloc(sizeof (char)* strlen(frame.data));
 
-    while (p != NULL) {
-        parameters[i++] = p;
-        p = strtok(NULL, "*");
-    }
+    strcpy(data,frame.data);
 
-    return parameters[0];
+//    for (int i = 0; i < 240 ; i++) {
+//        printf("%c -\n",data[i]);
+//    }
+//    printf("--------------------\n");
+
+    return data;
 
 }
 
