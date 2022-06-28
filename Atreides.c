@@ -330,7 +330,7 @@ void logout(Frame frame) {
 
 
 void send_user_photo(int fd, Frame frame) {
-    char string_output[100];
+    char string_output[100], frame_string[256];
     char *path, *trama, *filename;
     char aux[50];
     int id_user_photo, size, file, num_frames;
@@ -359,7 +359,7 @@ void send_user_photo(int fd, Frame frame) {
     //check if the photo exists
     if (access(path, F_OK) == 0) { //photo exists
 
-        //TODO send picture
+        //send picture
         size = GetSizeFile(path);
 
         trama = tramaPhotoPicture(filename, size, MD5Generate(path));
@@ -397,6 +397,16 @@ void send_user_photo(int fd, Frame frame) {
 		}
 		
 		close(file);
+
+		//wait for Fremen response
+
+		read(fd, frame_string, 256);
+
+		frame = createFrameFromString(frame_string);
+
+		if(frame.type == 'R'){ //ERROR from Fremen with the picture
+			printF("La imatge no s'ha rebut correctament!\n");
+		}
 
 
     } else { //photo does not exists
