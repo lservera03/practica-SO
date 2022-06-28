@@ -35,6 +35,8 @@ char *tramaSearchPicture(char *nameFichero,  int size , char *MD5SUM);
 
 char *tramaPhotoPicture(char *filename, int size, char *MD5SUM);
 
+char *compleDataTramaPhoto(char *trama, char *dades);
+
 char *tramaPhotoRequest(char *id);
 
 char *tramaPhotoNotFound();

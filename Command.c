@@ -255,7 +255,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                         frame = tramaSearchPicture(command->arguments[1], size, MD5Generate(pathFoto));
 
-
                         if (strcmp(frame, "1") == 0) {
                             write(STDOUT_FILENO, "ERROR: filename too big\n",
                                   sizeof(char) * strlen("ERROR: filename too big\n"));
@@ -269,15 +268,12 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                 number_frame = (size / 240) + 1;
                             } else {
                                 number_frame = (size / 240);
-                                printf("%d\n",number_frame);
                             }
 
                             for (int z = 0; z < number_frame; z++) {
 
                                 frame = sendDataPhoto(photo_fd);
-
                                 write(atreides_fd, frame, 256);
-                                usleep(300);
                             }
                             close(photo_fd);
 

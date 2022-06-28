@@ -237,12 +237,12 @@ char *read_all_frame_photo(int fd) {
 
     frame = createFrameFromString(frame_string);
 
-    char *data = malloc(sizeof (char)* strlen(frame.data));
+    char *data = malloc(sizeof(char) * strlen(frame.data));
 
-    strcpy(data,frame.data);
+    strcpy(data, frame.data);
 
-//    for (int i = 0; i < 240 ; i++) {
-//        printf("%c -\n",data[i]);
+//    for (int i = 0; i < 240; i++) {
+//        printf("%c -\n", data[i]);
 //    }
 //    printf("--------------------\n");
 
@@ -255,7 +255,8 @@ void data_photo_receive(char *size2, int fd) {
     int user_id = 2;
     int file_id = 0, bytes;
 
-    int size = atoi(size2), number_frame;
+    int size = atoi(size2);
+    int number_frame;
 
     char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user_id));
     char *pathFoto = (char *) malloc(sizeof("atreides1/") + sizeof(name_file));

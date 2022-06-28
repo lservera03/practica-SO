@@ -13,6 +13,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include "Plotcreation.h"
+#include <signal.h>
+
 
 typedef struct {
     char **arguments;

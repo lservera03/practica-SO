@@ -32,6 +32,16 @@ char *completeDataTrama(char *trama, char *dades) {
     return trama;
 }
 
+
+char *compleDataTramaPhoto(char *trama, char *dades){
+
+    for (int i = 0; i < 240 ; i ++){
+        trama[i+16] = dades[i];
+    }
+
+    return trama;
+}
+
 char *tramaStartConexion(char *nom, char *codipostal) {
     char *trama;
     char *dades = (char *) malloc(sizeof(nom) + sizeof(codipostal));
@@ -222,9 +232,9 @@ char *sendDataPhoto(int photo_fd) {
     trama = createOrigin("FREMEN");
     trama[15] = 'D';
 
-    trama = completeDataTrama(trama, dadesBinarias);
+    trama = compleDataTramaPhoto(trama, dadesBinarias);
 
-//    for (int f = 16; f < 256 ; f++) {
+//    for (int f = 0; f < 256 ; f++) {
 //        printf("%c -\n",trama[f]);
 //    }
 //    printf("--------------------\n");
