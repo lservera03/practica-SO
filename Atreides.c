@@ -229,36 +229,35 @@ void search_users(int fd, Frame frame) {
 
 }
 
-void data_photo_receive(char *size2, int fd) {
+void data_photo_receive(char *size2, int fd, char *MD5SUM) {
     int user_id = 4;
-    int file_id = 0;//, bytes;
-	char frame_string[256];
-	Frame frame;
+    int file_id = 0;
+    char frame_string[256];
+    Frame frame;
 
     int size = atoi(size2);
     int number_frame;
 
+    char *trama= malloc(256 * sizeof(char));
     char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user_id));
     char *pathFoto = (char *) malloc(sizeof("Atreides") + sizeof(name_file));
-
+    char *dades = (char *) malloc(strlen("Guardada com ") + sizeof (user_id) + strlen(".jpg\n"));
 
     sprintf(name_file, "%d.jpg", user_id);
-    sprintf(pathFoto, "Atreides/%s", name_file);
+    sprintf(pathFoto, "atreides1/%s", name_file);
 
     file_id = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
     if ((size % 240) != 0) {
         number_frame = (size / 240) + 1;
-        //bytes = size % 240;
     } else {
         number_frame = (size / 240);
-        //bytes = 0;
     }
 
     for (int i = 0; i < number_frame; i++) {
 
-		read(fd, frame_string, 256);
-		frame = createFrameFromString(frame_string);
+        read(fd, frame_string, 256);
+        frame = createFrameFromString(frame_string);
 
         if (i == (number_frame - 1)) {
             write(file_id, frame.data, size % 240);
@@ -270,7 +269,19 @@ void data_photo_receive(char *size2, int fd) {
 
     close(file_id);
 
-    printF(MD5Generate(pathFoto));
+    sprintf(dades, "Guardada com %d.jpg\n", user_id);
+    printF(dades);
+    free(dades);
+
+    if (MD5Generate(pathFoto) == MD5SUM) {
+        trama = sendResponse(1);
+    } else {
+        trama = sendResponse(2);
+    }
+    write(file_id, trama, 256);
+    free(trama);
+    free(pathFoto);
+    free(name_file);
 
 }
 
@@ -294,7 +305,7 @@ void read_info_photo_send(Frame frame, int fd) {
 
     memset(string_output, '\0', strlen(string_output));
 
-    data_photo_receive(parameters[1], fd);
+    data_photo_receive(parameters[1], fd, parameters[2]);
 }
 
 
@@ -368,35 +379,34 @@ void send_user_photo(int fd, Frame frame) {
 
         //TODO check why trama is not correct
 
-		write(fd, trama, 256);
+        write(fd, trama, 256);
 
-		memset(string_output, '\0', 100);
+        memset(string_output, '\0', 100);
 
-		sprintf(string_output, "Enviament %d.jpg\n", id_user_photo);
+        sprintf(string_output, "Enviament %d.jpg\n", id_user_photo);
 
-		printF(string_output);
+        printF(string_output);
 
-		//calculate number of frames to send
-		num_frames = size / 240;
+        //calculate number of frames to send
+        num_frames = size / 240;
 
-		if((size % 240) != 0){ //THe last frame might be shorter
-			num_frames++;
-		}
+        if ((size % 240) != 0) { //THe last frame might be shorter
+            num_frames++;
+        }
 
-		//open file and read picture
-		file = open(path, O_RDONLY);
+        //open file and read picture
+        file = open(path, O_RDONLY);
 
-		memset(trama, 0, strlen(trama));
+        memset(trama, 0, strlen(trama));
 
-		for(int i = 0; i < num_frames; i++){ //send picture frame by frame
-	
+        for (int i = 0; i < num_frames; i++) { //send picture frame by frame
 
-			trama = sendDataPhotoAtreides(file);
-			write(fd, trama, 256);
+            trama = sendDataPhotoAtreides(file);
+            write(fd, trama, 256);
 
-		}
-		
-		close(file);
+        }
+
+        close(file);
 
 
     } else { //photo does not exists
@@ -427,7 +437,6 @@ void *run_thread(void *fd_client) {
     while (!exit) {
 
         read(fd, frame_string, (sizeof(char) * 256));
-
 
         frame = createFrameFromString(frame_string);
 

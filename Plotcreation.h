@@ -15,6 +15,7 @@
 #include <pthread.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 #include "ServerInfo.h"
 #include "File.h"
 
@@ -35,8 +36,6 @@ char *tramaSearchPicture(char *nameFichero,  int size , char *MD5SUM);
 
 char *tramaPhotoPicture(char *filename, int size, char *MD5SUM);
 
-char *compleDataTramaPhoto(char *trama, char *dades);
-
 char *tramaPhotoRequest(char *id);
 
 char *tramaPhotoNotFound();
@@ -44,6 +43,8 @@ char *tramaPhotoNotFound();
 char *sendDataPhoto(int photo_fd);
 
 char *sendDataPhotoAtreides(int photo_fd);
+
+char *sendResponse(int value);
 
 char *MD5Generate(char *pathFoto);
 

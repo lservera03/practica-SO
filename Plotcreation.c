@@ -20,6 +20,10 @@ char *createOrigin(char string[]) {
 
 
 char *completeDataTrama(char *trama, char *dades) {
+    printf("***************\n");
+    for (int j = 0; j < 16; j++) {
+        printf("%c-\n",trama[j]);
+    }
 
     for (unsigned int i = 0; i < strlen(dades); i++) {
         trama[i + 16] = dades[i];
@@ -27,16 +31,6 @@ char *completeDataTrama(char *trama, char *dades) {
 
     for (int i = 16 + strlen(dades); i < 256; i++) {
         trama[i] = '\0';
-    }
-
-    return trama;
-}
-
-
-char *compleDataTramaPhoto(char *trama, char *dades){
-
-    for (int i = 0; i < 240 ; i ++){
-        trama[i+16] = dades[i];
     }
 
     return trama;
@@ -171,7 +165,8 @@ char *tramaSearchResponse(char *string) {
 
 
 char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
-    char *trama;
+    char *trama=(char * ) malloc(sizeof(char) * 256);;
+    memset(trama, 0, 256 * sizeof(char));
     char *dades = (char *) malloc(sizeof(nameFichero) + sizeof(size) + sizeof(MD5SUM));
 
     if (strlen(nameFichero) > 30) return "1";
@@ -180,10 +175,25 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     trama = createOrigin("FREMEN");
     trama[15] = 'F';
 
+    for (int j = 0; j < 16; j++) {
+        printf("%c-\n",trama[j]);
+    }
+
     sprintf(dades, "%s*%d*%s", nameFichero, size, MD5SUM);
+
+    printf("++++++++++++++++++++++++++\n");
+
+    for (int j = 0; j < 16; j++) {
+        printf("%c-\n",trama[j]);
+    }
 
     trama = completeDataTrama(trama, dades);
 
+    printf("-------------\n");
+
+    for (int j = 0; j < 16; j++) {
+        printf("%c-\n",trama[j]);
+    }
     return trama;
 }
 
@@ -233,7 +243,6 @@ char *completeDataPhoto(char *trama, char buffer[240]){
 		trama[i + 16] = buffer[i];
 	}
 
-
 	return trama;
 }
 
@@ -257,7 +266,6 @@ char *sendDataPhotoAtreides(int photo_fd){
 
 char *sendDataPhoto(int photo_fd) {
     char *trama;
-    //char *dadesBinarias = GEtBinari(photo_fd);
 
     trama = createOrigin("FREMEN");
     trama[15] = 'D';
@@ -265,13 +273,27 @@ char *sendDataPhoto(int photo_fd) {
 	char buffer[240];
 
 	read(photo_fd, buffer, 240);
-
     trama = completeDataPhoto(trama, buffer);
-
 
     return trama;
 }
 
+char *sendResponse(int value){
+    char *trama;
+    char *buffer;
+
+    trama = createOrigin("ATREIDES");
+    if (value == 1){
+        trama[15] = 'I';
+       buffer ="IMAGE OK";
+    } else {
+        trama[15] = 'R';
+        buffer="IMAGE KO";
+    }
+    trama = completeDataPhoto(trama, buffer);
+
+    return trama;
+}
 
 
 char *MD5Generate(char *pathFoto) {
@@ -300,6 +322,7 @@ char *MD5Generate(char *pathFoto) {
 
     return NULL;
 }
+
 
 
 int GetSizeFile (char *pathFoto) {
