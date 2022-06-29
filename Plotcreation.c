@@ -23,10 +23,6 @@ char *createOrigin(char string[]) {
 
 
 char *completeDataTrama(char *trama, char *dades) {
-    printf("***************\n");
-    for (int j = 0; j < 16; j++) {
-        printf("%c-\n",trama[j]);
-    }
 
     for (unsigned int i = 0; i < strlen(dades); i++) {
         trama[i + 16] = dades[i];

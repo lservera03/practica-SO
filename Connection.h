@@ -3,7 +3,7 @@
 
 
 typedef struct {
-    int user_id;
+    User user;
     int file_descriptor;
     pthread_t thread;
 } Connection;

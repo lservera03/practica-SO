@@ -11,6 +11,8 @@ Users *users;
 
 void read_info_photo_send();
 
+User get_user_by_fd(int fd);
+
 char *read_all_frame_photo();
 
 void RSI_SIGINT() {
@@ -26,6 +28,8 @@ void RSI_SIGINT() {
     //Close socket
     close(listenFD);
 
+
+	//TODO free connections memory
 
     //set default RSI for SIGINT
     signal(SIGINT, SIG_DFL);
@@ -74,6 +78,28 @@ void add_user(User user) {
 }
 
 
+void create_connection(int fd, User user, pthread_t thread){
+
+	//create space for new connection
+	if(num_connections == 0){
+		open_connections = (Connection *) malloc(sizeof(Connection));
+	} else {
+		open_connections = (Connection *) realloc(open_connections, (num_connections + 1) * sizeof(Connection));
+	}
+
+	//create new connection
+	open_connections[num_connections].user.id = user.id;
+	strcpy(open_connections[num_connections].user.postal_code, user.postal_code);
+	open_connections[num_connections].user.username = (char *) malloc(sizeof(char) * strlen(user.username));
+	strcpy(open_connections[num_connections].user.username, user.username);
+	open_connections[num_connections].file_descriptor = fd;
+	open_connections[num_connections].thread = thread;
+
+	num_connections++;
+
+}
+
+
 void login_user(int fd, Frame frame) {
     int correct = -1, exit = 0, found = 0, i = 0, id_user;
     char *trama;
@@ -107,6 +133,8 @@ void login_user(int fd, Frame frame) {
                 correct = 0;
             }
 
+			create_connection(fd, users->registered_users[i], pthread_self());
+
 
             exit = 1;
             found = 1;
@@ -128,9 +156,12 @@ void login_user(int fd, Frame frame) {
 
         add_user(user);
 
+		//create new connection
+		create_connection(fd, user, pthread_self());
+
     }
 
-    //TODO if it is not correct send error frame
+    //if it is not correct send error frame
     if (correct == 0) {
         trama = tramaConnectionFailed();
     } else {
@@ -141,6 +172,13 @@ void login_user(int fd, Frame frame) {
     sprintf(string_output, "Assignat a ID %d\n", id_user);
 
     printF(string_output);
+
+	printF("Connection\n");
+
+	printf("ID: %d\n", open_connections[num_connections - 1].user.id);
+	printF(open_connections[num_connections - 1].user.username);
+	printF(open_connections[num_connections - 1].user.postal_code);
+
 
     //send response
     write(fd, trama, 256);
@@ -230,21 +268,25 @@ void search_users(int fd, Frame frame) {
 }
 
 void data_photo_receive(char *size2, int fd, char *MD5SUM) {
-    int user_id = 4;
     int file_id = 0;
     char frame_string[256];
     Frame frame;
+	User user;
 
     int size = atoi(size2);
     int number_frame;
 
-    char *trama= malloc(256 * sizeof(char));
-    char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user_id));
-    char *pathFoto = (char *) malloc(sizeof("Atreides") + sizeof(name_file));
-    char *dades = (char *) malloc(strlen("Guardada com ") + sizeof (user_id) + strlen(".jpg\n"));
 
-    sprintf(name_file, "%d.jpg", user_id);
-    sprintf(pathFoto, "atreides1/%s", name_file);
+	//get user by fd
+	user = get_user_by_fd(fd);
+
+    char *trama= malloc(256 * sizeof(char));
+    char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user.id));
+    char *pathFoto = (char *) malloc(sizeof("Atreides") + sizeof(name_file));
+    char *dades = (char *) malloc(strlen("Guardada com ") + sizeof (user.id) + strlen(".jpg\n"));
+
+    sprintf(name_file, "%d.jpg", user.id);
+    sprintf(pathFoto, "Atreides/%s", name_file);
 
     file_id = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
@@ -269,7 +311,7 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 
     close(file_id);
 
-    sprintf(dades, "Guardada com %d.jpg\n", user_id);
+    sprintf(dades, "Guardada com %d.jpg\n", user.id);
     printF(dades);
     free(dades);
 
@@ -285,10 +327,29 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 
 }
 
+
+User get_user_by_fd(int fd){
+	User aux;
+
+	for(int i = 0; i < num_connections; i++){
+		if(open_connections[i].file_descriptor == fd){
+			return open_connections[i].user;
+		}
+	}
+
+	aux.id = -1;
+	
+
+	return aux;
+}
+
+
+
 void read_info_photo_send(Frame frame, int fd) {
     char *parameters[3];
     int i = 0;
     char string_output[100];
+	User user;
 
     //split frame.data to get parameters (MD5SUM)
     char *p = strtok(frame.data, "*");
@@ -298,8 +359,13 @@ void read_info_photo_send(Frame frame, int fd) {
         parameters[i++] = p;
         p = strtok(NULL, "*");
     }
+		
+	//get user by fd
+	user = get_user_by_fd(fd);
+
+
     // todo cambiaar nombre y id usuario
-    sprintf(string_output, "Rebut send %s de %s %s\n", parameters[0], parameters[1], parameters[2]);
+    sprintf(string_output, "Rebut send %s de %s %d\n", parameters[0], user.username, user.id);
 
     printF(string_output);
 
@@ -329,6 +395,8 @@ void logout(Frame frame) {
 
     //TODO all stuff necessary to keep the server stable
 
+	//TODO delete connection from open_connections
+
     free(p);
 
     printF("Desconnectat d'Atreides\n");
@@ -345,6 +413,7 @@ void send_user_photo(int fd, Frame frame) {
     char *path, *trama, *filename;
     char aux[50];
     int id_user_photo, size, file, num_frames;
+	User user;
 
     strcpy(aux, frame.data);
 
@@ -354,9 +423,11 @@ void send_user_photo(int fd, Frame frame) {
 
     id_user_photo = atoi(frame.data);
 
-    //TODO know the user by the fd
 
-    sprintf(string_output, "Rebut photo %d\n", id_user_photo);
+    //get user by the fd
+	user = get_user_by_fd(fd);
+
+    sprintf(string_output, "Rebut photo %d de %s %d\n", id_user_photo, user.username, user.id);
 
     printF(string_output);
 
@@ -522,6 +593,8 @@ int main(int argc, char *argv[]) {
             users = (Users *) malloc(sizeof(Users));
             readUsers(users);
 
+
+			num_connections = 0;
 
             while (1) {
                 printF("Esperant connexions...\n");
