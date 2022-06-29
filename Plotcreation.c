@@ -109,23 +109,6 @@ char *tramaConnectionCreated(int id) {
 
 
 
-char *tramaConnectionFailed() {
-    char *trama;
-    
-	char *dades = (char *) malloc(sizeof(char) * strlen("ERROR"));
-
-    trama = createOrigin("ATREIDES");
-    trama[15] = 'E';
-
-    sprintf(dades, "%s", "ERROR");
-
-    trama = completeDataTrama(trama, dades);
-
-
-    return trama;
-}
-
-
 char *tramaPhotoNotFound() {
     char *trama;
     
@@ -150,7 +133,7 @@ char *tramaFinishConeixion(char *name, int id_user) {
     int id_length = sprintf(aux, "%d", id_user);
 
 
-    char *dades = (char *) malloc(sizeof(name) + id_length);
+    char *dades = (char *) malloc(sizeof(char) * (strlen(name) + id_length + 1));
 
     trama = createOrigin("FREMEN");
     trama[15] = 'Q';

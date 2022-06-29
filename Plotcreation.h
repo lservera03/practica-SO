@@ -24,8 +24,6 @@ char *tramaStartConexion(char *name, char *codipostal);
 
 char *tramaConnectionCreated(int id);
 
-char *tramaConnectionFailed();
-
 char *tramaPhotoCorrect();
 
 char *tramaPhotoNotCorrect();

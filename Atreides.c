@@ -101,7 +101,7 @@ void create_connection(int fd, User user, pthread_t thread){
 
 
 void login_user(int fd, Frame frame) {
-    int correct = -1, exit = 0, found = 0, i = 0, id_user;
+    int exit = 0, found = 0, i = 0, id_user;
     char *trama;
     char string_output[100];
     User user;
@@ -122,16 +122,9 @@ void login_user(int fd, Frame frame) {
 
     //Check if the user is already registered
     for (int i = 0; i < users->last_id && !exit; i++) {
-        if (strcmp(users->registered_users[i].username, parameters[0]) == 0) { //The user exists
+        if (strcmp(users->registered_users[i].username, parameters[0]) == 0 && strcmp(users->registered_users[i].postal_code, parameters[1]) == 0) { //The user exists
 
             id_user = users->registered_users[i].id;
-
-            //check if the postal code is the same as the registered one
-            if (strcmp(parameters[1], users->registered_users[i].postal_code) == 0) {
-                correct = 1;
-            } else {
-                correct = 0;
-            }
 
 			create_connection(fd, users->registered_users[i], pthread_self());
 
@@ -159,15 +152,11 @@ void login_user(int fd, Frame frame) {
 		//create new connection
 		create_connection(fd, user, pthread_self());
 
+
     }
 
-    //if it is not correct send error frame
-    if (correct == 0) {
-        trama = tramaConnectionFailed();
-    } else {
-        trama = tramaConnectionCreated(id_user);
-    }
 
+    trama = tramaConnectionCreated(id_user);
 
     sprintf(string_output, "Assignat a ID %d\n", id_user);
 
@@ -177,6 +166,8 @@ void login_user(int fd, Frame frame) {
     write(fd, trama, 256);
 
     printF("Enviada resposta\n\n");
+
+	free(trama);
 
 }
 
@@ -394,9 +385,6 @@ void logout(Frame frame) {
 
     printF("Desconnectat d'Atreides\n");
 
-    //Let the thread kill itself
-    pthread_detach(pthread_self());
-    pthread_cancel(pthread_self());
 
 }
 
@@ -512,7 +500,10 @@ void *run_thread(void *fd_client) {
 
         read(fd, frame_string, (sizeof(char) * 256));
 
+
         frame = createFrameFromString(frame_string);
+
+		memset(frame_string, 0, strlen(frame_string));
 
         switch (frame.type) {
             case 'C': //LOGIN
@@ -528,14 +519,21 @@ void *run_thread(void *fd_client) {
                 send_user_photo(fd, frame);
                 break;
             case 'Q': //LOGOUT
-                logout(frame);
+      			close(fd);
+	  			logout(frame);
+				exit = 1;
                 break;
             default: //UNRECOGNIZED
                 break;
         }
-    }
+	}
 
     close(fd);
+
+
+    //Let the thread kill itself
+    pthread_detach(pthread_self());
+    pthread_cancel(pthread_self());
 
     return NULL;
 }

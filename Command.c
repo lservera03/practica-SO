@@ -109,53 +109,48 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     if (*ptr == '\0') {
                         //TODO check if there is already a user logged in.
 
+						if(!is_logged){
+                        	create_connection_atreides();
 
-                        create_connection_atreides();
+                        	//Check if the socket is correct
+                        	if (atreides_fd != -1) {
 
-                        //Check if the socket is correct
-                        if (atreides_fd != -1) {
+                            	username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]));
 
-                            username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]));
+                            	strcpy(username, command->arguments[1]);
 
-                            strcpy(username, command->arguments[1]);
+                            	frame = tramaStartConexion(command->arguments[1], command->arguments[2]);
 
-                            frame = tramaStartConexion(command->arguments[1], command->arguments[2]);
+                            	//Enviar trama solicitant connexió
+                            	write(atreides_fd, frame, 256);
 
-                            //Enviar trama solicitant connexió
-                            write(atreides_fd, frame, 256);
+                            	//Wait for response
+                            	read(atreides_fd, frame_string, (sizeof(char) * 256));
 
-                            //Wait for response
-                            read(atreides_fd, frame_string, (sizeof(char) * 256));
-
-                            //Process response received
-                            frame_struct = createFrameFromString(frame_string);
-
-
-                            //check if the frame is correct(O) or not (E)
-
-                            switch (frame_struct.type) {
-                                case 'E': //ERROR in login
-                                    printF("Login incorrecte!\n");
-                                    break;
-                                case 'O': //LOGIN correct
-                                    id_user = atoi(frame_struct.data);
-
-                                    sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
-
-                                    printF(string_output);
-
-                                    printF("Ara estàs connectat a Atreides.\n");
-
-                                    is_logged = 1;
-                                    break;
-                                default: //FRAME NOT RECOGNIZED
-                                    break;
-                            }
+                            	//Process response received
+                            	frame_struct = createFrameFromString(frame_string);
 
 
-                        } else {
-                            printF("ERROR: NO s'ha pogut connectar amb Atreides\n");
-                        }
+                            	id_user = atoi(frame_struct.data);
+
+                            	sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
+
+                            	printF(string_output);
+
+                            
+								printF("Ara estàs connectat a Atreides.\n");
+
+								is_logged = 1;
+
+								free(frame);
+
+
+                        	} else {
+                            	printF("ERROR: NO s'ha pogut connectar amb Atreides\n");
+                        	}
+						} else {
+							printF("Ja existeix un usuario loguejat\n");
+						}
                     }
 
                 } else {
@@ -428,8 +423,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 //CHeck if the user is logged in
                 if (is_logged) {
 
-
                     frame = tramaFinishConeixion(username, id_user);
+
 
                     //send logout request
                     write(atreides_fd, frame, 256);
