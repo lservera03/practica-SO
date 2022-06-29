@@ -173,13 +173,6 @@ void login_user(int fd, Frame frame) {
 
     printF(string_output);
 
-	printF("Connection\n");
-
-	printf("ID: %d\n", open_connections[num_connections - 1].user.id);
-	printF(open_connections[num_connections - 1].user.username);
-	printF(open_connections[num_connections - 1].user.postal_code);
-
-
     //send response
     write(fd, trama, 256);
 
