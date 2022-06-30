@@ -115,14 +115,13 @@ void login_user(int fd, Frame frame) {
         p = strtok(NULL, "*");
     }
 
-
     sprintf(string_output, "Rebut login %s %s\n", parameters[0], parameters[1]);
 
     printF(string_output);
 
     //Check if the user is already registered
     for (int i = 0; i < users->last_id && !exit; i++) {
-        if (strcmp(users->registered_users[i].username, parameters[0]) == 0 && strcmp(users->registered_users[i].postal_code, parameters[i]) == 0) { //The user exists
+        if (strcmp(users->registered_users[i].username, parameters[0]) == 0) { //The user exists
 
             id_user = users->registered_users[i].id;
 
@@ -262,9 +261,9 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 	user = get_user_by_fd(fd);
 
     char *trama= malloc(256 * sizeof(char));
-    char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user.id));
+    char *name_file = (char *) malloc(sizeof(char) *(strlen(".jpg") + sizeof(user.id)));
     char *pathFoto = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(name_file)));
-    char *dades = (char *) malloc(strlen("Guardada com ") + sizeof (user.id) + strlen(".jpg\n"));
+    char *dades = (char *) malloc(sizeof(char) *(strlen("Guardada com ") + sizeof (user.id) + strlen(".jpg\n")));
 
     sprintf(name_file, "%d.jpg", user.id);
     sprintf(pathFoto, ".%s/%s", serverInfo->directory, name_file);
@@ -572,7 +571,6 @@ int main(int argc, char *argv[]) {
             //read users
             users = (Users *) malloc(sizeof(Users));
             readUsers(users);
-
 
 			num_connections = 0;
 

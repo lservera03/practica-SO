@@ -9,9 +9,6 @@
 char *createOrigin(char string[]) {
     char *trama = (char * )malloc(sizeof(char) * 256);
 
-    //memset(trama, 0, sizeof(char) * 256);
-
-
     sprintf(trama, "%s", string);
 
     for (int i = strlen(string); i < 15; i++) {
