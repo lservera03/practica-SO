@@ -205,7 +205,6 @@ char *tramaPhotoPicture(char *filename, int size, char *MD5SUM) {
     char *dades = (char *) malloc(sizeof(filename) + sizeof(size) + sizeof(MD5SUM));
 
     if (strlen(filename) > 30) return "1";
-    if (strlen(MD5SUM) > 32) return "2";
 
     trama = createOrigin("ATREIDES");
     trama[15] = 'F';

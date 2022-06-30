@@ -70,8 +70,6 @@ void create_connection_atreides() {
 int executeCommand(char string[], ServerInfo *serverInfo) {
     char upper[50];
     char *frame;
-    //TODO CAMBIAR id SOCKET
-    // todo poner valor a size del fichero y md5Sum_hash
     char frame_string[256];
     char string_output[100];
     Frame frame_struct;
@@ -80,7 +78,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     int number_frame;
 
     exit = 0;
-
 
     server_info = serverInfo;
 
@@ -181,8 +178,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                         sprintf(string_output, "No hi ha cap persona humana a %s\n", command->arguments[1]);
                         printF(string_output);
                     } else { //If there are users
-                        //TODO split info and show
-
 
                         //Split info and show
                         int name = 1;
@@ -235,11 +230,9 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                 if (command->num_arguments == 2) {
 
-                    //TODO change path with server_info path
+                    char *pathFoto = (char *) malloc(sizeof(char)*(strlen(serverInfo->directory)+ strlen(command->arguments[1]) + 2));
 
-                    char *pathFoto = (char *) malloc(sizeof(strlen("fremen1/")) + sizeof(command->arguments[1]));
-
-                    sprintf(pathFoto, "fremen1/%s", command->arguments[1]);
+                    sprintf(pathFoto, ".%s/%s", serverInfo->directory , command->arguments[1]);
 
                     if (access(pathFoto, F_OK) != 0) {
                         printF("Error: La imagen no existe\n");
@@ -272,6 +265,18 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             }
                             close(photo_fd);
 
+                            read(atreides_fd, frame_string, 256);
+                            frame_struct = createFrameFromString(frame_string);
+
+                            switch (frame_struct.type) {
+                                case 'I':
+                                    printF("Foto enviada amb exit Atreides\n");
+                                    break;
+                                case 'R':
+                                    printF("Eroor: Al enviar la foto a Atreides\n");
+                                    break;
+
+                            }
                         }
 
                     }
@@ -294,9 +299,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                 if (is_logged) {
 
-
                     //TODO check the argument is a number
-
 
                     frame = tramaPhotoRequest(command->arguments[1]);
 

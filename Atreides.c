@@ -295,12 +295,14 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
     printF(dades);
     free(dades);
 
-    if (MD5Generate(pathFoto) == MD5SUM) {
+    if (strcmp(MD5Generate(pathFoto),MD5SUM) == 0) {
         trama = sendResponse(1);
     } else {
         trama = sendResponse(2);
     }
-    write(file_id, trama, 256);
+    write(fd, trama, 256);
+
+
     free(trama);
     free(pathFoto);
     free(name_file);
@@ -343,8 +345,6 @@ void read_info_photo_send(Frame frame, int fd) {
 	//get user by fd
 	user = get_user_by_fd(fd);
 
-
-    // todo cambiaar nombre y id usuario
     sprintf(string_output, "Rebut send %s de %s %d\n", parameters[0], user.username, user.id);
 
     printF(string_output);
@@ -425,9 +425,7 @@ void send_user_photo(int fd, Frame frame) {
 
         trama = tramaPhotoPicture(filename, size, MD5Generate(path));
 
-        //TODO check trama correcta (1, 2)
-
-        //TODO check why trama is not correct
+        //TODO check trama correcta (1)
 
         write(fd, trama, 256);
 
