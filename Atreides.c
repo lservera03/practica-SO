@@ -225,7 +225,18 @@ void search_users(int fd, Frame frame) {
 
             sprintf(aux, "*%s*%d", users->registered_users[j].username, users->registered_users[j].id);
 
-            strcat(data, aux);
+			
+			if((strlen(data) + strlen(aux)) > 240){ //If it does not fit in one frame
+				trama = tramaSearchResponse(data);
+
+				write(fd, trama, 256); //send current frame and keep going
+				
+				memset(data, '\0', 240);
+				
+			}
+
+			strcat(data, aux);
+			
 
             //Clean aux string
             memset(aux, '0', 100);

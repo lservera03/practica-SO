@@ -180,9 +180,10 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     } else { //If there are users
 
                         //Split info and show
-                        int name = 1;
+                        int name = 1, first = 1;
                         int num_users_found = -1;
                         char aux[60];
+						int end = 0, counter = 0;
 
                         char *p = strtok(frame_struct.data, "*");
 
@@ -195,21 +196,40 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                         printF(string_output);
 
-                        p = strtok(NULL, "*");
 
-                        while (p != NULL) {
-                            if (name) {
-                                name = 0;
-                                strcpy(aux, p);
-                            } else {
-                                name = 1;
-                                sprintf(string_output, "%s %s\n", p, aux);
-                                printF(string_output);
-                            }
+						while(!end){ //Loop to read frames until we have printed all the users
 
-                            p = strtok(NULL, "*");
-                        }
+							if(first){
+		                  		p = strtok(NULL, "*");
+								first = 0;
+							}
 
+                        	while (p != NULL) {
+                            	if (name) {
+                                	name = 0;
+                                	strcpy(aux, p);
+                            	} else {
+                                	name = 1;
+                                	sprintf(string_output, "%s %s\n", p, aux);
+                                	printF(string_output);
+									counter++;
+                            	}
+
+                            	p = strtok(NULL, "*");
+                        	}
+							
+							if(counter == num_users_found){
+								end = 1;
+							} else {
+								read(atreides_fd, frame_string, sizeof(char) * 256);
+
+								frame_struct = createFrameFromString(frame_string);
+								
+								p = strtok(frame_struct.data, "*");
+
+								name = 1;
+							}
+						}
 
                     }
 
