@@ -10,9 +10,6 @@ int atreides_fd, is_logged = 0, id_user = -1;
 ServerInfo *server_info;
 char *username;
 
-
-//TODO RSI_SIGINT
-
 void RSI_SIGINT() {
 
     free(server_info);
@@ -74,7 +71,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
     char string_output[100];
     Frame frame_struct;
 
-    int i = 0, exit;
+    int i = 0, exit, size;
     int number_frame;
 
     exit = 0;
@@ -112,8 +109,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             //Check if the socket is correct
                             if (atreides_fd != -1) {
 
-
-                                username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]));
+                                username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]) + 1);
 
                                 strcpy(username, command->arguments[1]);
 
@@ -131,13 +127,13 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                                 id_user = atoi(frame_struct.data);
 
-   		                        sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
+                                sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
 
-           		                printF(string_output);
+                                printF(string_output);
 
-                   		        printF("Ara estàs connectat a Atreides.\n");
+                                printF("Ara estàs connectat a Atreides.\n");
 
-                           		is_logged = 1;
+                                is_logged = 1;
 
 
                             } else {
@@ -161,83 +157,92 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 //Check if the user is logged in
                 if (is_logged) {
 
-                    frame = tramaSearch(username, id_user, command->arguments[1]);
+                    char *ptr = command->arguments[1];
 
-                    //Send frame requesting the search
-                    write(atreides_fd, frame, 256);
+                    strtol(ptr, &ptr, 10);
 
-                    //Wait response with the users found
-                    read(atreides_fd, frame_string, (sizeof(char) * 256));
+                    if (*ptr == '\0') {
 
+                        frame = tramaSearch(username, id_user, command->arguments[1]);
 
-                    frame_struct = createFrameFromString(frame_string);
+                        //Send frame requesting the search
+                        write(atreides_fd, frame, 256);
 
-
-                    //If there are no users found
-                    if (strlen(frame_struct.data) == 1) {
-                        sprintf(string_output, "No hi ha cap persona humana a %s\n", command->arguments[1]);
-                        printF(string_output);
-                    } else { //If there are users
-
-                        //Split info and show
-                        int name = 1, first = 1;
-                        int num_users_found = -1;
-                        char aux[60];
-						int end = 0, counter = 0;
-
-                        char *p = strtok(frame_struct.data, "*");
-
-                        num_users_found = atoi(p);
-
-                        memset(string_output, '\0', 256);
-
-                        sprintf(string_output, "Hi han %d persones humanes a %s\n", num_users_found,
-                                command->arguments[1]);
-
-                        printF(string_output);
+                        //Wait response with the users found
+                        read(atreides_fd, frame_string, (sizeof(char) * 256));
 
 
-						while(!end){ //Loop to read frames until we have printed all the users
+                        frame_struct = createFrameFromString(frame_string);
 
-							if(first){
-		                  		p = strtok(NULL, "*");
-								first = 0;
-							}
 
-                        	while (p != NULL) {
-                            	if (name) {
-                                	name = 0;
-                                	strcpy(aux, p);
-                            	} else {
-                                	name = 1;
-                                	sprintf(string_output, "%s %s\n", p, aux);
-                                	printF(string_output);
-									counter++;
-                            	}
+                        //If there are no users found
+                        if (strlen(frame_struct.data) == 1) {
+                            sprintf(string_output, "No hi ha cap persona humana a %s\n", command->arguments[1]);
+                            printF(string_output);
+                        } else { //If there are users
 
-                            	p = strtok(NULL, "*");
-                        	}
-							
-							if(counter == num_users_found){
-								end = 1;
-							} else {
-								read(atreides_fd, frame_string, sizeof(char) * 256);
+                            //Split info and show
+                            int name = 1, first = 1;
+                            int num_users_found = -1;
+                            char aux[60];
+                            int end = 0, counter = 0;
 
-								frame_struct = createFrameFromString(frame_string);
-								
-								p = strtok(frame_struct.data, "*");
+                            char *p = strtok(frame_struct.data, "*");
 
-								name = 1;
-							}
-						}
+                            num_users_found = atoi(p);
 
+                            memset(string_output, '\0', 256);
+
+                            sprintf(string_output, "Hi han %d persones humanes a %s\n", num_users_found,
+                                    command->arguments[1]);
+
+                            printF(string_output);
+
+
+                            while (!end) { //Loop to read frames until we have printed all the users
+
+                                if (first) {
+                                    p = strtok(NULL, "*");
+                                    first = 0;
+                                }
+
+                                while (p != NULL) {
+                                    if (name) {
+                                        name = 0;
+                                        strcpy(aux, p);
+                                    } else {
+                                        name = 1;
+                                        sprintf(string_output, "%s %s\n", p, aux);
+                                        printF(string_output);
+                                        counter++;
+                                    }
+
+                                    p = strtok(NULL, "*");
+                                }
+
+                                if (counter == num_users_found) {
+                                    end = 1;
+                                } else {
+                                    read(atreides_fd, frame_string, sizeof(char) * 256);
+
+                                    frame_struct = createFrameFromString(frame_string);
+
+                                    p = strtok(frame_struct.data, "*");
+
+                                    name = 1;
+                                }
+                            }
+
+                        }
+
+
+                    } else {
+                        printF("Has d'estar loguejat per executar aquesta comanda!\n");
                     }
 
-
                 } else {
-                    printF("Has d'estar loguejat per executar aquesta comanda!\n");
+                    printF("ERROR: El id ha de ser un numero\n");
                 }
-
 
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
@@ -249,15 +254,17 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
             if (is_logged) {
 
                 if (command->num_arguments == 2) {
+                    // todo se ha añadido +1 a strlen(serverInfo->directory)
+                    char *pathFoto = (char *) malloc(
+                            sizeof(char) * (strlen(serverInfo->directory) + 1 + strlen(command->arguments[1]) + 2));
 
-                    char *pathFoto = (char *) malloc(sizeof(char)*(strlen(serverInfo->directory)+ strlen(command->arguments[1]) + 2));
-
-                    sprintf(pathFoto, ".%s/%s", serverInfo->directory , command->arguments[1]);
+                    sprintf(pathFoto, ".%s/%s", serverInfo->directory, command->arguments[1]);
 
                     if (access(pathFoto, F_OK) != 0) {
                         printF("Error: La imagen no existe\n");
+
                     } else {
-                        int size = GetSizeFile(pathFoto);
+                        size = GetSizeFile(pathFoto);
 
                         frame = tramaSearchPicture(command->arguments[1], size, MD5Generate(pathFoto));
 
@@ -270,6 +277,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             write(atreides_fd, frame, 256);
 
                             int photo_fd = open(pathFoto, O_RDONLY);
+                            // todo pathFoto
+                            free(pathFoto);
 
                             if ((size % 240) != 0) {
                                 number_frame = (size / 240) + 1;
@@ -293,7 +302,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                     printF("Foto enviada amb exit Atreides\n");
                                     break;
                                 case 'R':
-                                    printF("A ocorregut un error durant el enviament de la foto\n");
+                                    printF("ERROR: Al enviar la foto a Atreides\n");
                                     break;
 
                             }
@@ -316,117 +325,122 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "PHOTO") == 0) {
             if (command->num_arguments == 2) {
 
-
                 if (is_logged) {
 
-                    //TODO check the argument is a number
+                    char *ptr = command->arguments[1];
 
-                    frame = tramaPhotoRequest(command->arguments[1]);
+                    strtol(ptr, &ptr, 10);
 
-                    //Send frame requesting the picture
-                    write(atreides_fd, frame, 256);
+                    if (*ptr == '\0') {
 
-                    //Wait for response from Atreides
-                    read(atreides_fd, frame_string, sizeof(char) * 256);
+                        frame = tramaPhotoRequest(command->arguments[1]);
 
+                        //Send frame requesting the picture
+                        write(atreides_fd, frame, 256);
 
-                    frame_struct = createFrameFromString(frame_string);
-
-
-                    //check if the photo is found
-                    if (strcmp(frame_struct.data, "FILE NOT FOUND") == 0) {
-                        printF("No hi ha foto registrada.\n");
-                    } else {
+                        //Wait for response from Atreides
+                        read(atreides_fd, frame_string, sizeof(char) * 256);
 
 
-                        //Split frame.data to get photo info
-                        char *p = strtok(frame_struct.data, "*");
-                        char *parameters[3];
-                        char *pathFoto;
-                        char originalMD5[32], filename[30];
-                        int i = 0, size, num_frames, file, last_frame_short = 0;
+                        frame_struct = createFrameFromString(frame_string);
 
 
-                        while (p != NULL) {
-                            parameters[i++] = p;
-                            p = strtok(NULL, "*");
-                        }
-
-                        size = atoi(parameters[1]);
-
-                        strcpy(originalMD5, parameters[2]);
+                        //check if the photo is found
+                        if (strcmp(frame_struct.data, "FILE NOT FOUND") == 0) {
+                            printF("No hi ha foto registrada.\n");
+                        } else {
 
 
-                        strcpy(filename, parameters[0]);
+                            //Split frame.data to get photo info
+                            char *p = strtok(frame_struct.data, "*");
+                            char *parameters[3];
+                            char *pathFoto;
+                            char originalMD5[32], filename[30];
+                            int i = 0, size, num_frames, file, last_frame_short = 0;
 
 
-                        //calculate number of frames
-                        num_frames = size / 240;
-
-                        if ((num_frames % 240) != 0) {
-                            num_frames++;
-                            last_frame_short = 1;
-                        }
-
-                        //TODO create directory at the beginning of the execution
-
-                        //create path of the picture
-                        pathFoto = (char *) malloc(
-                                sizeof(char) * (strlen(serverInfo->directory) + strlen(filename) + 2));
-
-                        sprintf(pathFoto, ".%s/%s", serverInfo->directory, filename);
-
-
-                        //open file to save picture
-                        file = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
-
-
-                        //read photo frame by frame
-                        for (int i = 0; i < num_frames; i++) {
-
-                            read(atreides_fd, frame_string, 256);
-
-                            frame_struct = createFrameFromString(frame_string);
-
-
-                            if (i == (num_frames - 1) && last_frame_short) { //LAST FRAME
-                                write(file, frame_struct.data, size % 240);
-                            } else {
-                                write(file, frame_struct.data, 240);
+                            while (p != NULL) {
+                                parameters[i++] = p;
+                                p = strtok(NULL, "*");
                             }
 
-                            memset(frame_string, 0, strlen(frame_string));
+                            size = atoi(parameters[1]);
 
+                            strcpy(originalMD5, parameters[2]);
+
+
+                            strcpy(filename, parameters[0]);
+
+
+                            //calculate number of frames
+                            num_frames = size / 240;
+
+                            if ((num_frames % 240) != 0) {
+                                num_frames++;
+                                last_frame_short = 1;
+                            }
+
+                            //create path of the picture
+                            pathFoto = (char *) malloc(
+                                    sizeof(char) * (strlen(serverInfo->directory) + strlen(filename) + 2));
+
+                            sprintf(pathFoto, ".%s/%s", serverInfo->directory, filename);
+
+
+                            //open file to save picture
+                            file = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
+
+
+                            //read photo frame by frame
+                            for (int i = 0; i < num_frames; i++) {
+
+                                read(atreides_fd, frame_string, 256);
+
+                                frame_struct = createFrameFromString(frame_string);
+
+
+                                if (i == (num_frames - 1) && last_frame_short) { //LAST FRAME
+                                    write(file, frame_struct.data, size % 240);
+                                } else {
+                                    write(file, frame_struct.data, 240);
+                                }
+
+                                memset(frame_string, 0, strlen(frame_string));
+
+                            }
+
+                            close(file);
+
+                            //check MD5SUM is correct
+                            if (strcmp(MD5Generate(pathFoto), originalMD5) == 0) {
+
+                                printF("Foto descarregada\n");
+
+                                memset(frame, 0, strlen(frame));
+
+                                //send  photo frame correct
+                                frame = tramaPhotoCorrect();
+
+                                write(atreides_fd, frame, 256);
+                            } else {
+                                printF("Ha ocorregut un error durant la descarrega de la foto\n");
+
+                                //send incorrect photo frame
+
+                                memset(frame, 0, strlen(frame));
+
+                                frame = tramaPhotoNotCorrect();
+
+                                write(atreides_fd, frame, 256);
+                            }
+
+                            memset(filename, '\0', strlen(filename));
+                            free(p);
+                            free(pathFoto);
                         }
 
-                        close(file);
-
-                        //check MD5SUM is correct
-                        if (strcmp(MD5Generate(pathFoto), originalMD5) == 0) {
-
-                            printF("Foto descarregada\n");
-
-                            memset(frame, 0, strlen(frame));
-
-                            //send  photo frame correct
-                            frame = tramaPhotoCorrect();
-
-                            write(atreides_fd, frame, 256);
-                        } else {
-                            printF("Ha ocorregut un error durant la descarrega de la foto\n");
-
-                            //send incorrect photo frame
-
-                            memset(frame, 0, strlen(frame));
-
-                            frame = tramaPhotoNotCorrect();
-
-                            write(atreides_fd, frame, 256);
-                        }
-
-                        memset(filename, '\0', strlen(filename));
-                        free(p);
-                        free(pathFoto);
+                    } else {
+                        printF("ERROR: El id de la foto no es un numero\n");
                     }
 
 
@@ -497,9 +511,9 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 if (execvp(args[0], args) < 0) {
                     write(1, "ERROR al ejecutar el comando\n", sizeof("ERROR al ejecutar el comando\n"));
                 }
-                /** free memory when wrong comand*/
-                /*
-                 freeMemoryCommand();*/
+
+
+                freeMemoryCommand();
 
                 //command->num_arguments = -1;
 			
@@ -540,7 +554,7 @@ int countArguments(char string[]) {
     char *copy, *splited;
     int counter = 0;
 
-    copy = (char *) malloc(strlen(string));
+    copy = (char *) malloc(strlen(string) + 1);
     strcpy(copy, string);
 
     splited = strtok(copy, " ");
@@ -560,8 +574,8 @@ void createCommand(char string[]) {
     int counter = 0, end = 0, arguments;
 
     command = (Command *) malloc(sizeof(Command));
-
-    copy = (char *) malloc(strlen(string));
+// todo he cambiado +1 --> +2 memoria valgrind prueba
+    copy = (char *) malloc(strlen(string) + 1);
     strcpy(copy, string);
 
     arguments = countArguments(string);

@@ -43,7 +43,7 @@ char *tramaStartConexion(char *nom, char *codipostal) {
 
     trama = completeDataTrama(trama, dades);
 
-
+    free(dades);
     return trama;
 }
 
@@ -60,7 +60,7 @@ char *tramaPhotoCorrect() {
 	
     trama = completeDataTrama(trama, dades);
 
-
+    free(dades);
     return trama;
 }
 
@@ -77,7 +77,7 @@ char *tramaPhotoNotCorrect() {
 	
     trama = completeDataTrama(trama, dades);
 
-
+    free(dades);
     return trama;
 }
 
@@ -100,7 +100,7 @@ char *tramaConnectionCreated(int id) {
 
     trama = completeDataTrama(trama, dades);
 
-
+    free(dades);
     return trama;
 }
 
@@ -108,7 +108,6 @@ char *tramaConnectionCreated(int id) {
 
 char *tramaPhotoNotFound() {
     char *trama;
-    
 	char *dades = (char *) malloc(sizeof(char) * strlen("FILE NOT FOUND"));
 
     trama = createOrigin("ATREIDES");
@@ -117,8 +116,7 @@ char *tramaPhotoNotFound() {
     sprintf(dades, "%s", "FILE NOT FOUND");
 
     trama = completeDataTrama(trama, dades);
-
-
+    free(dades);
     return trama;
 }
 
@@ -138,7 +136,7 @@ char *tramaFinishConeixion(char *name, int id_user) {
     sprintf(dades, "%s*%d", name, id_user);
 
     trama = completeDataTrama(trama, dades);
-
+    free(dades);
     return trama;
 }
 
@@ -158,7 +156,7 @@ char *tramaSearch(char *name, int id_user, char *codipostal) {
     sprintf(dades, "%s*%d*%s", name, id_user, codipostal);
 
     trama = completeDataTrama(trama, dades);
-
+    free(dades);
     return trama;
 }
 
@@ -174,7 +172,7 @@ char *tramaSearchResponse(char *string) {
     sprintf(dades, "%s", string);
 
     trama = completeDataTrama(trama, dades);
-
+    free(dades);
 	return trama;
 }
 
@@ -182,10 +180,10 @@ char *tramaSearchResponse(char *string) {
 char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     char *trama;
 
-    char *dades = (char *) malloc(sizeof(char) * (strlen(nameFichero) + sizeof(size) + strlen(MD5SUM) + 2));
+    // todo añadido +1
+    char *dades = (char *) malloc(sizeof(char) * (strlen(nameFichero) +1 + sizeof(size) + strlen(MD5SUM) + 2));
 
     if (strlen(nameFichero) > 30) return "1";
-    if (strlen(MD5SUM) > 32) return "2";
 
     trama = createOrigin("FREMEN");
     trama[15] = 'F';
@@ -193,7 +191,8 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     sprintf(dades, "%s*%d*%s", nameFichero, size, MD5SUM);
 
     trama = completeDataTrama(trama, dades);
-
+    // todo free dades en todas las funciones aanteriores posteriores
+    free(dades);
     return trama;
 }
 
@@ -213,7 +212,7 @@ char *tramaPhotoPicture(char *filename, int size, char *MD5SUM) {
 
     trama = completeDataTrama(trama, dades);
 
-
+    free(dades);
     return trama;
 
 }
@@ -230,7 +229,7 @@ char *tramaPhotoRequest(char *id) {
     sprintf(dades, "%s", id);
 
     trama = completeDataTrama(trama, dades);
-
+    free(dades);
     return trama;
 }
 
@@ -258,7 +257,7 @@ char *sendDataPhotoAtreides(int photo_fd){
 	read(photo_fd, buffer, 240);
 
 	trama = completeDataPhoto(trama, buffer);
-	
+
 	return trama;
 }
 
@@ -272,6 +271,7 @@ char *sendDataPhoto(int photo_fd) {
 	char buffer[240];
 
 	read(photo_fd, buffer, 240);
+
     trama = completeDataPhoto(trama, buffer);
 
     return trama;
@@ -315,7 +315,6 @@ char *MD5Generate(char *pathFoto) {
         strtok(md5Hash, " ");
 
         close(pipefd[0]);
-
         return md5Hash;
     }
 

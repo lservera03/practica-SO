@@ -3,3 +3,8 @@ make
 ./Fremen.exe config.txt
 
 ./Atreides.exe config_server.txt
+
+
+valgrind ./Fremen.exe config.txt
+
+valgrind ./Atreides.exe config_server.txt

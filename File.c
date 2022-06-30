@@ -2,12 +2,13 @@
 
 
 int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
-    int fd, i, positions, final, correct, first = 1;
+    int fd, positions, final, correct;
+    int i = 0, first = 1;
     char character;
     char *buffer = NULL;
 	char *create_directory;
 
-    i = 0;
+
     positions = 1;
 
     fd = open(file, O_RDONLY, 0666);
@@ -59,22 +60,23 @@ int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
 
 
 		//Create directory if not exists
-		create_directory = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + 1));
+        // todo he cambiado +1 --> +2 memoria valgrind arreglado
+		create_directory = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + 2));
 
 		sprintf(create_directory, ".%s", serverInfo->directory);
 
 		mkdir(create_directory, 0700);
-		
 
+        free(create_directory);
 
         close(fd);
-        free(buffer);
+
     } else {
         write(STDERR_FILENO, "NO s'ha pogut obrir el fitxer",
               sizeof(char) * strlen("NO s'ha pogut obrir el fitxer"));
 
         correct = 0;
     }
-
+    free(buffer);
     return correct;
 }

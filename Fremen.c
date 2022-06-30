@@ -16,9 +16,7 @@ ServerInfo *serverInfo;
 
 void end() {
 
-
 	RSI_SIGINT();
-
 	
 	signal(SIGINT, SIG_DFL);
     raise(SIGINT);
@@ -27,8 +25,8 @@ void end() {
 
 int main(int argc, char *argv[]) {
     int correct, i, exit;
-    char character, *buffer;
-	//char *fremen = "FREMEN";
+    char character;
+    char *buffer;
 
     i = 0;
     buffer = NULL;
@@ -50,8 +48,7 @@ int main(int argc, char *argv[]) {
                 while (character != '\n') {
                     read(STDIN_FILENO, &character, sizeof(char));
 
-
-                    buffer = (char *) realloc(buffer, i + 1);
+                    buffer = (char *) realloc(buffer, i + 2);
 
                     buffer[i] = character;
 
@@ -71,11 +68,12 @@ int main(int argc, char *argv[]) {
 
 
             } while (!exit);
-
+            free(buffer);
         }
 
 		
 
+        free(serverInfo);
         raise(SIGINT);
 
     } else if (argc < 2) {

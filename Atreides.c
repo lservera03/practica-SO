@@ -30,7 +30,6 @@ void RSI_SIGINT() {
     //Close socket
     close(listenFD);
 
-
 	//TODO free connections memory
 
     //set default RSI for SIGINT
@@ -39,6 +38,15 @@ void RSI_SIGINT() {
     raise(SIGINT);
 
 }
+
+/** MEMORIA PARA HACER FREE
+ * msg
+ * users->registered_users[users->last_id].username
+ * open_connections
+ *  user.username
+ *  serverInfo
+ *  users
+ */
 
 
 char *readLine(int fd, char delimiter) {
@@ -225,18 +233,18 @@ void search_users(int fd, Frame frame) {
 
             sprintf(aux, "*%s*%d", users->registered_users[j].username, users->registered_users[j].id);
 
-			
+
 			if((strlen(data) + strlen(aux)) > 240){ //If it does not fit in one frame
 				trama = tramaSearchResponse(data);
 
 				write(fd, trama, 256); //send current frame and keep going
-				
+
 				memset(data, '\0', 240);
-				
+
 			}
 
 			strcat(data, aux);
-			
+
 
             //Clean aux string
             memset(aux, '0', 100);
@@ -255,7 +263,9 @@ void search_users(int fd, Frame frame) {
 
     printF("Enviada resposta\n");
 
+
 }
+
 
 void data_photo_receive(char *size2, int fd, char *MD5SUM) {
     int file_id = 0;
@@ -489,10 +499,8 @@ void send_user_photo(int fd, Frame frame) {
     }
 
     printF("Enviada resposta\n");
-
-
-    //TODO free memory used
-
+    free(path);
+    free(filename);
 }
 
 
