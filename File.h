@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <printf.h>
+#include <sys/stat.h>
+#include <stdio.h>
 
 
 #define FREMEN_CONFIG 1

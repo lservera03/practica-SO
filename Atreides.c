@@ -122,12 +122,12 @@ void login_user(int fd, Frame frame) {
 
     //Check if the user is already registered
     for (int i = 0; i < users->last_id && !exit; i++) {
-        if (strcmp(users->registered_users[i].username, parameters[0]) == 0 && strcmp(users->registered_users[i].postal_code, parameters[1]) == 0) { //The user exists
+        if (strcmp(users->registered_users[i].username, parameters[0]) == 0 && strcmp(users->registered_users[i].postal_code, parameters[i]) == 0) { //The user exists
 
             id_user = users->registered_users[i].id;
 
+				
 			create_connection(fd, users->registered_users[i], pthread_self());
-
 
             exit = 1;
             found = 1;
@@ -152,7 +152,6 @@ void login_user(int fd, Frame frame) {
 		//create new connection
 		create_connection(fd, user, pthread_self());
 
-
     }
 
 
@@ -166,8 +165,6 @@ void login_user(int fd, Frame frame) {
     write(fd, trama, 256);
 
     printF("Enviada resposta\n\n");
-
-	free(trama);
 
 }
 
@@ -266,11 +263,11 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 
     char *trama= malloc(256 * sizeof(char));
     char *name_file = (char *) malloc(sizeof(".jpg") + sizeof(user.id));
-    char *pathFoto = (char *) malloc(sizeof("Atreides") + sizeof(name_file));
+    char *pathFoto = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(name_file)));
     char *dades = (char *) malloc(strlen("Guardada com ") + sizeof (user.id) + strlen(".jpg\n"));
 
     sprintf(name_file, "%d.jpg", user.id);
-    sprintf(pathFoto, "Atreides/%s", name_file);
+    sprintf(pathFoto, ".%s/%s", serverInfo->directory, name_file);
 
     file_id = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
@@ -385,6 +382,9 @@ void logout(Frame frame) {
 
     printF("Desconnectat d'Atreides\n");
 
+    //Let the thread kill itself
+    pthread_detach(pthread_self());
+    pthread_cancel(pthread_self());
 
 }
 
@@ -417,7 +417,6 @@ void send_user_photo(int fd, Frame frame) {
     //create path
     sprintf(path, ".%s/%s.jpg", serverInfo->directory, aux);
 
-    //TODO create Atreides directory if not exists
 
     //check if the photo exists
     if (access(path, F_OK) == 0) { //photo exists
@@ -500,10 +499,7 @@ void *run_thread(void *fd_client) {
 
         read(fd, frame_string, (sizeof(char) * 256));
 
-
         frame = createFrameFromString(frame_string);
-
-		memset(frame_string, 0, strlen(frame_string));
 
         switch (frame.type) {
             case 'C': //LOGIN
@@ -519,21 +515,14 @@ void *run_thread(void *fd_client) {
                 send_user_photo(fd, frame);
                 break;
             case 'Q': //LOGOUT
-      			close(fd);
-	  			logout(frame);
-				exit = 1;
+                logout(frame);
                 break;
             default: //UNRECOGNIZED
                 break;
         }
-	}
+    }
 
     close(fd);
-
-
-    //Let the thread kill itself
-    pthread_detach(pthread_self());
-    pthread_cancel(pthread_self());
 
     return NULL;
 }

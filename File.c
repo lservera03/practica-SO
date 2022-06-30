@@ -5,6 +5,7 @@ int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
     int fd, i, positions, final, correct, first = 1;
     char character;
     char *buffer = NULL;
+	char *create_directory;
 
     i = 0;
     positions = 1;
@@ -55,6 +56,15 @@ int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
             }
 
         } while (final > 0);
+
+
+		//Create directory if not exists
+		create_directory = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + 1));
+
+		sprintf(create_directory, ".%s", serverInfo->directory);
+
+		mkdir(create_directory, 0700);
+		
 
 
         close(fd);

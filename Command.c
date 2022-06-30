@@ -100,63 +100,60 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         if (strcmp(upper, "LOGIN") == 0) {
             if (command->num_arguments == 3) {
 
-                char *ptr = command->arguments[2];
+                if (!is_logged) {
 
-                strtol(ptr, &ptr, 10);
+                    char *ptr = command->arguments[2];
 
-                if (*ptr == '\0') {
+                    strtol(ptr, &ptr, 10);
 
                     if (*ptr == '\0') {
-                        //TODO check if there is already a user logged in.
 
-						if(!is_logged){
-                        	create_connection_atreides();
+                        if (*ptr == '\0') {
 
-                        	//Check if the socket is correct
-                        	if (atreides_fd != -1) {
+                            create_connection_atreides();
 
-                            	username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]));
-
-                            	strcpy(username, command->arguments[1]);
-
-                            	frame = tramaStartConexion(command->arguments[1], command->arguments[2]);
-
-                            	//Enviar trama solicitant connexió
-                            	write(atreides_fd, frame, 256);
-
-                            	//Wait for response
-                            	read(atreides_fd, frame_string, (sizeof(char) * 256));
-
-                            	//Process response received
-                            	frame_struct = createFrameFromString(frame_string);
+                            //Check if the socket is correct
+                            if (atreides_fd != -1) {
 
 
-                            	id_user = atoi(frame_struct.data);
+                                username = (char *) malloc(sizeof(char) * strlen(command->arguments[1]));
 
-                            	sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
+                                strcpy(username, command->arguments[1]);
 
-                            	printF(string_output);
+                                frame = tramaStartConexion(command->arguments[1], command->arguments[2]);
 
-                            
-								printF("Ara estàs connectat a Atreides.\n");
+                                //Enviar trama solicitant connexió
+                                write(atreides_fd, frame, 256);
 
-								is_logged = 1;
+                                //Wait for response
+                                read(atreides_fd, frame_string, (sizeof(char) * 256));
 
-								free(frame);
+                                //Process response received
+                                frame_struct = createFrameFromString(frame_string);
 
 
-                        	} else {
-                            	printF("ERROR: NO s'ha pogut connectar amb Atreides\n");
-                        	}
-						} else {
-							printF("Ja existeix un usuario loguejat\n");
-						}
+                                id_user = atoi(frame_struct.data);
+
+   		                        sprintf(string_output, "Benvingut %s. Tens ID %d\n", username, id_user);
+
+           		                printF(string_output);
+
+                   		        printF("Ara estàs connectat a Atreides.\n");
+
+                           		is_logged = 1;
+
+
+                            } else {
+                                printF("ERROR: NO s'ha pogut connectar amb Atreides\n");
+                            }
+                        }
+
+                    } else {
+                        printF("ERROR: El codi postal ha de ser un numero\n");
                     }
-
                 } else {
-                    printF("ERROR: El codi postal ha de ser un numero\n");
+                    printF("Ja hi ha un usuari loguejat\n");
                 }
-
             } else {
                 write(STDOUT_FILENO, "Comanda KO. Falta paràmetres\n",
                       sizeof(char) * strlen("Comanda KO. Falta paràmetres\n"));
@@ -319,93 +316,94 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     } else {
 
 
-						//Split frame.data to get photo info
-						char *p = strtok(frame_struct.data, "*");
-						char *parameters[3];
-						char *pathFoto;
-						char originalMD5[32], filename[30];
-						int i = 0, size, num_frames, file, last_frame_short = 0;
+                        //Split frame.data to get photo info
+                        char *p = strtok(frame_struct.data, "*");
+                        char *parameters[3];
+                        char *pathFoto;
+                        char originalMD5[32], filename[30];
+                        int i = 0, size, num_frames, file, last_frame_short = 0;
 
 
-						while(p != NULL){
-							parameters[i++] = p;
-							p = strtok(NULL, "*");
-						}
+                        while (p != NULL) {
+                            parameters[i++] = p;
+                            p = strtok(NULL, "*");
+                        }
 
-						size = atoi(parameters[1]);
+                        size = atoi(parameters[1]);
 
-						strcpy(originalMD5, parameters[2]);
-
-
-						strcpy(filename, parameters[0]);
+                        strcpy(originalMD5, parameters[2]);
 
 
-						//calculate number of frames
-						num_frames = size / 240;
-						
-						if((num_frames % 240) != 0){
-							num_frames++;
-							last_frame_short = 1;
-						}
-
-						//TODO create directory at the beginning of the execution
-						
-						//create path of the picture
-						pathFoto = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(filename) + 2));
-						
-						sprintf(pathFoto, ".%s/%s", serverInfo->directory, filename);
+                        strcpy(filename, parameters[0]);
 
 
-						//open file to save picture
-						file = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
+                        //calculate number of frames
+                        num_frames = size / 240;
+
+                        if ((num_frames % 240) != 0) {
+                            num_frames++;
+                            last_frame_short = 1;
+                        }
+
+                        //TODO create directory at the beginning of the execution
+
+                        //create path of the picture
+                        pathFoto = (char *) malloc(
+                                sizeof(char) * (strlen(serverInfo->directory) + strlen(filename) + 2));
+
+                        sprintf(pathFoto, ".%s/%s", serverInfo->directory, filename);
 
 
-						//read photo frame by frame
-						for(int i = 0; i < num_frames; i++){
-						
-							read(atreides_fd, frame_string, 256);
-
-							frame_struct = createFrameFromString(frame_string);
+                        //open file to save picture
+                        file = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
 
-							if(i == (num_frames - 1) && last_frame_short){ //LAST FRAME
-								write(file, frame_struct.data, size % 240);
-							} else {
-								write(file, frame_struct.data, 240);
-							}
+                        //read photo frame by frame
+                        for (int i = 0; i < num_frames; i++) {
 
-							memset(frame_string, 0, strlen(frame_string));
+                            read(atreides_fd, frame_string, 256);
 
-						}						
+                            frame_struct = createFrameFromString(frame_string);
 
-						close(file);
 
-						//check MD5SUM is correct
-						if(strcmp(MD5Generate(pathFoto), originalMD5) == 0){
+                            if (i == (num_frames - 1) && last_frame_short) { //LAST FRAME
+                                write(file, frame_struct.data, size % 240);
+                            } else {
+                                write(file, frame_struct.data, 240);
+                            }
 
-							printF("Foto descarregada\n");
+                            memset(frame_string, 0, strlen(frame_string));
 
-							memset(frame, 0, strlen(frame));
+                        }
 
-							//send  photo frame correct
-							frame = tramaPhotoCorrect();
+                        close(file);
 
-							write(atreides_fd, frame, 256);
-						} else {
-							printF("Ha ocorregut un error durant la descarrega de la foto\n");
-							
-							//send incorrect photo frame
+                        //check MD5SUM is correct
+                        if (strcmp(MD5Generate(pathFoto), originalMD5) == 0) {
 
-							memset(frame, 0, strlen(frame));
+                            printF("Foto descarregada\n");
 
-							frame = tramaPhotoNotCorrect();
+                            memset(frame, 0, strlen(frame));
 
-							write(atreides_fd, frame, 256);
-						}
+                            //send  photo frame correct
+                            frame = tramaPhotoCorrect();
 
-						memset(filename, '\0', strlen(filename));
-						free(p);
-						free(pathFoto);
+                            write(atreides_fd, frame, 256);
+                        } else {
+                            printF("Ha ocorregut un error durant la descarrega de la foto\n");
+
+                            //send incorrect photo frame
+
+                            memset(frame, 0, strlen(frame));
+
+                            frame = tramaPhotoNotCorrect();
+
+                            write(atreides_fd, frame, 256);
+                        }
+
+                        memset(filename, '\0', strlen(filename));
+                        free(p);
+                        free(pathFoto);
                     }
 
 
@@ -423,8 +421,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 //CHeck if the user is logged in
                 if (is_logged) {
 
-                    frame = tramaFinishConeixion(username, id_user);
 
+                    frame = tramaFinishConeixion(username, id_user);
 
                     //send logout request
                     write(atreides_fd, frame, 256);
@@ -437,7 +435,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                     printF("Desconnectat d’Atreides. Dew!\n");
 
-					is_logged = 0;
+                    is_logged = 0;
 
                     exit = 1;
                 } else {
