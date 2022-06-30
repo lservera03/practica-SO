@@ -460,7 +460,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                     is_logged = 0;
 
-                    exit = 1;
+                   	exit = 1;
                 } else {
                     printF("Has d'estar loguejat per executar aquesta comanda!\n");
                 }
@@ -480,6 +480,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 //pid = getpid();
                 wait(NULL);
                 freeMemoryCommand();
+
+				printF("AQUI");
             } else if (fill == 0) {
 
 
@@ -494,16 +496,16 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 //Execute command and check if it's correct
                 if (execvp(args[0], args) < 0) {
                     write(1, "ERROR al ejecutar el comando\n", sizeof("ERROR al ejecutar el comando\n"));
-
                 }
                 /** free memory when wrong comand*/
                 /*
                  freeMemoryCommand();*/
 
-                command->num_arguments = -1;
+                //command->num_arguments = -1;
+			
+				printF("FUERA");
 
-
-                return -1;
+               // return 1;
             } else {
 
                 freeMemoryCommand();
@@ -512,6 +514,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
             }
         }
     }
+
+	
 
     return exit;
 }
