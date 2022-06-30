@@ -494,9 +494,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 //pid = getpid();
                 wait(NULL);
                 freeMemoryCommand();
-
-				printF("AQUI");
-            } else if (fill == 0) {
+           	} else if (fill == 0) {
 
 
                 char *args[command->num_arguments + 1];
@@ -509,11 +507,12 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                 //Execute command and check if it's correct
                 if (execvp(args[0], args) < 0) {
-                    write(1, "ERROR al ejecutar el comando\n", sizeof("ERROR al ejecutar el comando\n"));
-                }
+                    write(1, "ERROR al ejecutar el comando\n", sizeof(char) * strlen("ERROR al ejecutar el comando\n"));
+					_exit(1); //necessary because when execvp fails the process does not finish
+               	}
 
 
-                freeMemoryCommand();
+                //freeMemoryCommand();
 
                 //command->num_arguments = -1;
 			

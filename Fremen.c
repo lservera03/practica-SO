@@ -60,8 +60,6 @@ int main(int argc, char *argv[]) {
                 exit = executeCommand(buffer, serverInfo);
 
 
-				printf("%d\n", exit);
-
                 i = 0;
                 buffer[0] = '\0';
                 character = ' ';
@@ -73,7 +71,7 @@ int main(int argc, char *argv[]) {
 
 		
 
-        free(serverInfo);
+        //free(serverInfo);
         raise(SIGINT);
 
     } else if (argc < 2) {
