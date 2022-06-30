@@ -83,10 +83,10 @@ void readUsers(Users *users) {
         free(buffer);
     } else {
 
-        users->last_id = -1;
+        users->last_id = 0;
 
         write(STDERR_FILENO, "NO s'ha pogut obrir el fitxer d'usuaris\n",
-              sizeof(char) * strlen("NO s'ha pogut obrir el fitxer\n"));
+              sizeof(char) * strlen("NO s'ha pogut obrir el fitxer d'usuaris\n"));
     }
 
 
@@ -98,12 +98,11 @@ void writeUsers(Users *users){
 	char write_string[100];
     int write_fd;
 
-    //OPen file
+    //Open file
     write_fd = open(USERS_FILE_ROUTE, O_CREAT | O_RDWR, 0666);
 
     if (write_fd < 0) {
         printF("NO s'ha pogut obrir el fitxer d'usuaris\n");
-//        raise(SIGINT);
     } else {
 
         //Write last id given
@@ -114,8 +113,6 @@ void writeUsers(Users *users){
         for (int i = 0; i < users->last_id; i++) {
             sprintf(write_string, "%d,%s,%s\n", users->registered_users[i].id, users->registered_users[i].username, users->registered_users[i].postal_code);
             write(write_fd, write_string, sizeof(char) * strlen(write_string));
-//            memset(cadena, 0, strlen(cadena));
-  //          memset(cadena, 0, strlen(cadena));
         }
 
         close(write_fd);

@@ -293,7 +293,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                     printF("Foto enviada amb exit Atreides\n");
                                     break;
                                 case 'R':
-                                    printF("Eroor: Al enviar la foto a Atreides\n");
+                                    printF("A ocorregut un error durant el enviament de la foto\n");
                                     break;
 
                             }

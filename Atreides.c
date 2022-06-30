@@ -22,8 +22,10 @@ void RSI_SIGINT() {
 
 
 
-    //save users
-    writeUsers(users);
+    //save users if there is any
+	if(users->last_id != -1){
+	    writeUsers(users);
+	}
 
     //Close socket
     close(listenFD);
@@ -221,8 +223,6 @@ void search_users(int fd, Frame frame) {
             sprintf(string_output, "%d %s\n", users->registered_users[j].id, users->registered_users[j].username);
             printF(string_output);
 
-            //TODO allow to send more than 1 frame when it is too large
-
             sprintf(aux, "*%s*%d", users->registered_users[j].username, users->registered_users[j].id);
 
 			
@@ -254,7 +254,6 @@ void search_users(int fd, Frame frame) {
     write(fd, trama, 256);
 
     printF("Enviada resposta\n");
-
 
 }
 
