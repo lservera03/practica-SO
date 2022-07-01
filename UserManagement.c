@@ -42,7 +42,7 @@ void readUsers(Users *users) {
                             user.id = atoi(buffer);
                             break;
                         case 2:
-                            user.username = (char *) malloc(sizeof(char) * strlen(buffer));
+                            user.username = (char *) malloc(sizeof(char) * strlen(buffer) + 1);
                             strcpy(user.username, buffer);
                             break;
                         case 3:
@@ -60,7 +60,7 @@ void readUsers(Users *users) {
 
                     users->registered_users[counter].id = user.id;
                     strcpy(users->registered_users[counter].postal_code, user.postal_code);
-					users->registered_users[counter].username = (char *) malloc(sizeof(char) * strlen(user.username));
+					users->registered_users[counter].username = (char *) malloc(sizeof(char) * strlen(user.username) + 1);
                     strcpy(users->registered_users[counter].username, user.username);
 
 

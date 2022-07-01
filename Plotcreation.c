@@ -91,7 +91,7 @@ char *tramaConnectionCreated(int id) {
     //Know the length of the integer to create string with that size
     int id_length = sprintf(aux, "%d", id);
 
-    char *dades = (char *) malloc(id_length);
+    char *dades = (char *) malloc(sizeof(char) + (id_length + 1));
 
     trama = createOrigin("ATREIDES");
     trama[15] = 'O';
@@ -201,7 +201,7 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
 
 char *tramaPhotoPicture(char *filename, int size, char *MD5SUM) {
     char *trama;
-    char *dades = (char *) malloc(sizeof(filename) + sizeof(size) + sizeof(MD5SUM));
+    char *dades = (char *) malloc(sizeof(char) * (strlen(filename) + sizeof(size) + strlen(MD5SUM)));
 
     if (strlen(filename) > 30) return "1";
 
@@ -298,7 +298,7 @@ char *sendResponse(int value){
 char *MD5Generate(char *pathFoto) {
     pid_t pid = 0;
     int pipefd[2];
-    char *args[] = {"md5sum", pathFoto, NULL};
+    char *args[3] = {"md5sum", pathFoto, NULL};
 
     pipe(pipefd); //create a pipe
     pid = fork(); //spawn a child process
@@ -309,7 +309,7 @@ char *MD5Generate(char *pathFoto) {
         execvp(args[0], args);
     } else {
         close(pipefd[1]);
-        char *md5Hash = malloc(32 * sizeof(*md5Hash));
+        char *md5Hash = malloc(32 * sizeof(char) + 1);
 
         read(pipefd[0], md5Hash, 32);
         strtok(md5Hash, " ");

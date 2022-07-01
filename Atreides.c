@@ -100,7 +100,7 @@ void create_connection(int fd, User user, pthread_t thread){
 	//create new connection
 	open_connections[num_connections].user.id = user.id;
 	strcpy(open_connections[num_connections].user.postal_code, user.postal_code);
-	open_connections[num_connections].user.username = (char *) malloc(sizeof(char) * strlen(user.username));
+	open_connections[num_connections].user.username = (char *) malloc(sizeof(char) * strlen(user.username) + 1);
 	strcpy(open_connections[num_connections].user.username, user.username);
 	open_connections[num_connections].file_descriptor = fd;
 	open_connections[num_connections].thread = thread;
@@ -417,7 +417,7 @@ void send_user_photo(int fd, Frame frame) {
 
     strcpy(aux, frame.data);
 
-    filename = (char *) malloc(sizeof(char) * (strlen(aux) + strlen(".jpg")));
+    filename = (char *) malloc(sizeof(char) * (strlen(aux) + strlen(".jpg") + 1));
 
     sprintf(filename, "%s.jpg", aux);
 
@@ -431,7 +431,7 @@ void send_user_photo(int fd, Frame frame) {
 
     printF(string_output);
 
-    path = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(aux)));
+    path = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(aux) + 7));
 
     //create path
     sprintf(path, ".%s/%s.jpg", serverInfo->directory, aux);
