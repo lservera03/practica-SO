@@ -66,6 +66,7 @@ void readUsers(Users *users) {
 
                     counter++;
                     positions = 1;
+					free(user.username);
                 }
 
 

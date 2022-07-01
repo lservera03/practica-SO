@@ -164,7 +164,7 @@ char *tramaSearch(char *name, int id_user, char *codipostal) {
 char *tramaSearchResponse(char *string) {
     char *trama;
 
-    char *dades = (char *) malloc(sizeof(char) * strlen(string));
+    char *dades = (char *) malloc(sizeof(char) * strlen(string) + 1);
 
     trama = createOrigin("ATREIDES");
     trama[15] = 'L';

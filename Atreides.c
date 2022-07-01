@@ -20,17 +20,35 @@ void RSI_SIGINT() {
 
     //TODO here free all memory and try to keep system stable
 
-
+	free(serverInfo);
 
     //save users if there is any
 	if(users->last_id != -1){
 	    writeUsers(users);
 	}
+	
+	//free users memory
+	for(int i = 0; i < users->last_id; i++){
+		free(users->registered_users[i].username);
+	}
+
+	free(users->registered_users);
+	free(users);
 
     //Close socket
     close(listenFD);
 
-	//TODO free connections memory
+	//free connections memory
+	for(int i = 0; i < num_connections; i++){
+		pthread_cancel(open_connections[i].thread);
+        pthread_join(open_connections[i].thread, NULL);
+        pthread_detach(open_connections[i].thread);
+
+		close(open_connections[i].file_descriptor);
+		free(open_connections[i].user.username);
+	}
+
+	free(open_connections);
 
     //set default RSI for SIGINT
     signal(SIGINT, SIG_DFL);
@@ -175,6 +193,8 @@ void login_user(int fd, Frame frame) {
 
     printF("Enviada resposta\n\n");
 
+
+	free(trama);
 }
 
 
@@ -263,7 +283,7 @@ void search_users(int fd, Frame frame) {
 
     printF("Enviada resposta\n");
 
-
+	free(trama);
 }
 
 
@@ -375,6 +395,31 @@ void read_info_photo_send(Frame frame, int fd) {
 }
 
 
+void remove_open_connection(char *username){
+	int position = -1;
+
+	for(int i = 0; i < num_connections; i++){
+		if(strcmp(open_connections[i].user.username, username) == 0){
+			close(open_connections[i].file_descriptor);
+			free(open_connections[i].user.username);
+			position = i;
+			break;
+		}
+	}
+
+
+	//move all connections one position to left
+	for(int j = position; j < num_connections; j++){
+		if((j + 1) < num_connections){
+			open_connections[j] = open_connections[j + 1];
+		}
+	}
+
+	num_connections--;
+
+}
+
+
 void logout(Frame frame) {
     char *parameters[2];
     char string_output[100];
@@ -396,6 +441,8 @@ void logout(Frame frame) {
     //TODO all stuff necessary to keep the server stable
 
 	//TODO delete connection from open_connections
+	remove_open_connection(parameters[0]);
+
 
     free(p);
 
@@ -531,6 +578,8 @@ void *run_thread(void *fd_client) {
                 break;
             case 'Q': //LOGOUT
                 logout(frame);
+				printF("LLEGA\n");
+				exit = 1;
                 break;
             default: //UNRECOGNIZED
                 break;
