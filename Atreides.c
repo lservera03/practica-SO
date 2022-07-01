@@ -292,6 +292,7 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
     char frame_string[256];
     Frame frame;
 	User user;
+	char *trama;
 
     int size = atoi(size2);
     int number_frame;
@@ -300,12 +301,14 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 	//get user by fd
 	user = get_user_by_fd(fd);
 
-    char *trama= malloc(256 * sizeof(char));
-    char *name_file = (char *) malloc(sizeof(char) *(strlen(".jpg") + sizeof(user.id)));
-    char *pathFoto = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(name_file)));
-    char *dades = (char *) malloc(sizeof(char) *(strlen("Guardada com ") + sizeof (user.id) + strlen(".jpg\n")));
-
+    char *name_file = (char *) malloc(sizeof(char) * (strlen(".jpg") + sizeof(user.id) + 2));
+    
     sprintf(name_file, "%d.jpg", user.id);
+
+	char *pathFoto = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + strlen(name_file) + 4));
+
+    char *dades = (char *) malloc(sizeof(char) * (strlen("Guardada com ") + sizeof (user.id) + strlen(".jpg") + 2));
+
     sprintf(pathFoto, ".%s/%s", serverInfo->directory, name_file);
 
     file_id = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
@@ -335,7 +338,9 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
     printF(dades);
     free(dades);
 
-    if (strcmp(MD5Generate(pathFoto),MD5SUM) == 0) {
+	char *created_MD5 = MD5Generate(pathFoto);
+
+    if (strcmp(created_MD5, MD5SUM) == 0) {
         trama = sendResponse(1);
     } else {
         trama = sendResponse(2);
@@ -343,6 +348,7 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
     write(fd, trama, 256);
 
 
+	free(created_MD5);
     free(trama);
     free(pathFoto);
     free(name_file);

@@ -32,7 +32,7 @@ char *completeDataTrama(char *trama, char *dades) {
     return trama;
 }
 
-char *tramaStartConexion(char *nom, char *codipostal) {
+char *tramaStartConexion(char *nom, char *codipostal){
     char *trama;
     char *dades = (char *) malloc(sizeof(nom) + sizeof(codipostal));
 
@@ -201,7 +201,7 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
 
 char *tramaPhotoPicture(char *filename, int size, char *MD5SUM) {
     char *trama;
-    char *dades = (char *) malloc(sizeof(char) * (strlen(filename) + sizeof(size) + strlen(MD5SUM)));
+    char *dades = (char *) malloc(sizeof(char) * (strlen(filename) + sizeof(size) + strlen(MD5SUM) + 3));
 
     if (strlen(filename) > 30) return "1";
 
@@ -284,13 +284,19 @@ char *sendResponse(int value){
     trama = createOrigin("ATREIDES");
     if (value == 1){
         trama[15] = 'I';
-       buffer ="IMAGE OK";
+		buffer = (char *) malloc(sizeof(char) * (strlen("IMAGE OK") + 1));
+       	strcpy(buffer, "IMAGE OK");
     } else {
         trama[15] = 'R';
-        buffer="IMAGE KO";
+		buffer = (char *) malloc(sizeof(char) * (strlen("IMAGE KO") + 1));
+        strcpy(buffer, "IMAGE KO");
     }
-    trama = completeDataPhoto(trama, buffer);
 
+    trama = completeDataTrama(trama, buffer);
+
+
+
+	free(buffer);
     return trama;
 }
 
@@ -298,7 +304,6 @@ char *sendResponse(int value){
 char *MD5Generate(char *pathFoto) {
     pid_t pid = 0;
     int pipefd[2];
-    char *args[3] = {"md5sum", pathFoto, NULL};
 
     pipe(pipefd); //create a pipe
     pid = fork(); //spawn a child process
@@ -306,15 +311,15 @@ char *MD5Generate(char *pathFoto) {
     if (pid == 0) {
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
-        execvp(args[0], args);
-    } else {
+        execl("/bin/md5sum", "md5sum", pathFoto, (char *) 0);
+    } else { 
         close(pipefd[1]);
-        char *md5Hash = malloc(32 * sizeof(char) + 1);
+        char *md5Hash = malloc(32 * sizeof(char));
 
         read(pipefd[0], md5Hash, 32);
-        strtok(md5Hash, " ");
-
         close(pipefd[0]);
+
+
         return md5Hash;
     }
 
