@@ -463,7 +463,7 @@ void logout(Frame frame) {
 
 void send_user_photo(int fd, Frame frame) {
     char string_output[100], frame_string[256];
-    char *path, *trama, *filename;
+    char *path, *trama = NULL, *filename, *md5;
     char aux[50];
     int id_user_photo, size, file, num_frames;
 	User user;
@@ -496,11 +496,19 @@ void send_user_photo(int fd, Frame frame) {
         //send picture
         size = GetSizeFile(path);
 
-        trama = tramaPhotoPicture(filename, size, MD5Generate(path));
+		md5 = MD5Generate(path);
+
+		char md5_send[32];
+
+		strcpy(md5_send, md5);
+
+        trama = tramaPhotoPicture(filename, size, md5_send);
 
         //TODO check trama correcta (1)
 
         write(fd, trama, 256);
+
+		free(trama);
 
         memset(string_output, '\0', 100);
 
@@ -518,13 +526,14 @@ void send_user_photo(int fd, Frame frame) {
         //open file and read picture
         file = open(path, O_RDONLY);
 
-        memset(trama, 0, strlen(trama));
 
         for (int i = 0; i < num_frames; i++) { //send picture frame by frame
 
             trama = sendDataPhotoAtreides(file);
             write(fd, trama, 256);
 
+
+			free(trama);
         }
 
         close(file);
@@ -544,16 +553,21 @@ void send_user_photo(int fd, Frame frame) {
 
         printF("No hi ha foto registrada.\n");
 
+		
+		memset(trama, 0, strlen(trama));
+
         trama = tramaPhotoNotFound();
 
         //send photo not found frame
         write(fd, trama, 256);
-
+		
+		free(trama);
     }
 
     printF("Enviada resposta\n");
     free(path);
     free(filename);
+	free(md5);
 }
 
 
