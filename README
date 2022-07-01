@@ -5,6 +5,6 @@ make
 ./Atreides.exe config_server.txt
 
 
-valgrind --track-origins=yes --leak-check=full ./Fremen.exe config.txt
+valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./Fremen.exe config.txt
 
-valgrind --track-origins=yes --leak-check=full ./Atreides.exe config_server.txt
+valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./Atreides.exe config_server.txt
