@@ -554,8 +554,6 @@ void send_user_photo(int fd, Frame frame) {
         printF("No hi ha foto registrada.\n");
 
 		
-		memset(trama, 0, strlen(trama));
-
         trama = tramaPhotoNotFound();
 
         //send photo not found frame
