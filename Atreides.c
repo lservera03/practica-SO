@@ -537,6 +537,7 @@ void send_user_photo(int fd, Frame frame) {
             trama = sendDataPhotoAtreides(file);
             write(fd, trama, 256);
 
+			memset(trama, 0, 256);
 
 			free(trama);
         }

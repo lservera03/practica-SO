@@ -253,6 +253,8 @@ char *sendDataPhotoAtreides(int photo_fd){
 
 	char buffer[240];
 
+	memset(buffer, 0, 240);
+
 	read(photo_fd, buffer, 240);
 
 	trama = completeDataPhoto(trama, buffer);
