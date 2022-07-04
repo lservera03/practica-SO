@@ -12,12 +12,18 @@
 #define printF(x) write(1, x, strlen(x))
 
 ServerInfo *serverInfo;
-
+char *buffer;
 
 void end() {
 
+	free(serverInfo);
+
+	free(buffer);
+
 	RSI_SIGINT();
 	
+
+    //Let the system handle the SIGINT by default
 	signal(SIGINT, SIG_DFL);
     raise(SIGINT);
 }
@@ -44,6 +50,7 @@ int main(int argc, char *argv[]) {
             write(STDOUT_FILENO, "Benvingut a Fremen\n", sizeof(char) * strlen("Benvingut a Fremen\n"));
 
             do {
+				buffer = NULL;
                 write(STDOUT_FILENO, "$ ", sizeof(char) * strlen("$ "));
                 while (character != '\n') {
                     read(STDIN_FILENO, &character, sizeof(char));
@@ -63,10 +70,10 @@ int main(int argc, char *argv[]) {
                 i = 0;
                 buffer[0] = '\0';
                 character = ' ';
-
+				
+				free(buffer);
 
             } while (!exit);
-            free(buffer);
         }
 
 		

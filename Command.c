@@ -12,7 +12,6 @@ char *username;
 
 void RSI_SIGINT() {
 
-    free(server_info);
 
     if (is_logged) { //Send logout if the user is logged in
         char *trama;
@@ -35,9 +34,6 @@ void RSI_SIGINT() {
     close(atreides_fd);
 
 
-    //Let the system handle the SIGINT by default
-    signal(SIGINT, SIG_DFL);
-    raise(SIGINT);
 
 }
 
@@ -239,11 +235,11 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
 						free(frame);
                     } else {
-                        printF("Has d'estar loguejat per executar aquesta comanda!\n");
+                        printF("ERROR: El id ha de ser un numero\n");
                     }
 
                 } else {
-                    printF("ERROR: El id ha de ser un numero\n");
+                    printF("Has d'estar loguejat per executar aquesta comanda!\n");
                 }
 
             } else {
