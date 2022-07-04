@@ -28,7 +28,9 @@ void RSI_SIGINT() {
 
     free(username);
 
-    freeMemoryCommand();
+	if(command != NULL){
+		freeMemoryCommand();
+	}
 
     close(atreides_fd);
 
@@ -134,7 +136,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                 printF("Ara estàs connectat a Atreides.\n");
 
                                 is_logged = 1;
-
 
                             } else {
                                 printF("ERROR: NO s'ha pogut connectar amb Atreides\n");
@@ -464,8 +465,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     //send logout request
                     write(atreides_fd, frame, 256);
 
-                    //Free memory up
-                    free(frame);
 
                     //Close open socket
                     close(atreides_fd);
@@ -526,6 +525,9 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
             }
         }
+		
+		free(frame);
+		freeMemoryCommand();
     }
 
 	
@@ -563,6 +565,8 @@ int countArguments(char string[]) {
 
         counter++;
     }
+
+	free(copy);
 
     return counter;
 }
@@ -602,6 +606,7 @@ void createCommand(char string[]) {
 
     command->num_arguments = arguments;
 
+	free(copy);
 }
 
 
@@ -619,6 +624,8 @@ void freeMemoryCommand() {
 
         free(command);
     }
+
+	command = NULL;
 
 }
 

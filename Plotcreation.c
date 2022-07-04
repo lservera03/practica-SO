@@ -34,7 +34,7 @@ char *completeDataTrama(char *trama, char *dades) {
 
 char *tramaStartConexion(char *nom, char *codipostal){
     char *trama;
-    char *dades = (char *) malloc(sizeof(nom) + sizeof(codipostal));
+    char *dades = (char *) malloc(sizeof(char) * (strlen(nom) + strlen(codipostal) + 2));
 
     trama = createOrigin("FREMEN");
     trama[15] = 'C';

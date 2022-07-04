@@ -47,8 +47,10 @@ void RSI_SIGINT() {
 		close(open_connections[i].file_descriptor);
 		free(open_connections[i].user.username);
 	}
-
-	free(open_connections);
+	
+	if(open_connections != NULL){
+		free(open_connections);
+	}
 
     //set default RSI for SIGINT
     signal(SIGINT, SIG_DFL);
@@ -423,6 +425,11 @@ void remove_open_connection(char *username){
 
 	num_connections--;
 
+	if(num_connections == 0){
+		free(open_connections);
+		open_connections = NULL;
+	}
+
 }
 
 
@@ -446,7 +453,7 @@ void logout(Frame frame) {
 
     //TODO all stuff necessary to keep the server stable
 
-	//TODO delete connection from open_connections
+	//delete connection from open_connections
 	remove_open_connection(parameters[0]);
 
 
@@ -596,7 +603,6 @@ void *run_thread(void *fd_client) {
                 break;
             case 'Q': //LOGOUT
                 logout(frame);
-				printF("LLEGA\n");
 				exit = 1;
                 break;
             default: //UNRECOGNIZED
