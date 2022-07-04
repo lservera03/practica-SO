@@ -137,6 +137,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                                 is_logged = 1;
 
+								free(frame);
                             } else {
                                 printF("ERROR: NO s'ha pogut connectar amb Atreides\n");
                             }
@@ -236,7 +237,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                         }
 
-
+						free(frame);
                     } else {
                         printF("Has d'estar loguejat per executar aquesta comanda!\n");
                     }
@@ -267,8 +268,13 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     } else {
                         size = GetSizeFile(pathFoto);
 
-                        frame = tramaSearchPicture(command->arguments[1], size, MD5Generate(pathFoto));
+						char *generated_md5 = MD5Generate(pathFoto);
 
+                        frame = tramaSearchPicture(command->arguments[1], size, generated_md5);
+
+						
+						free(generated_md5);
+					
                         if (strcmp(frame, "1") == 0) {
                             write(STDOUT_FILENO, "ERROR: filename too big\n",
                                   sizeof(char) * strlen("ERROR: filename too big\n"));
@@ -280,6 +286,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             int photo_fd = open(pathFoto, O_RDONLY);
                             // todo pathFoto
                             free(pathFoto);
+							free(frame);
 
                             if ((size % 240) != 0) {
                                 number_frame = (size / 240) + 1;
@@ -291,6 +298,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                                 frame = sendDataPhoto(photo_fd);
                                 write(atreides_fd, frame, 256);
+
+								free(frame);
 
                             }
                             close(photo_fd);
@@ -474,6 +483,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     is_logged = 0;
 
                    	exit = 1;
+
+					free(frame);
                 } else {
                     printF("Has d'estar loguejat per executar aquesta comanda!\n");
                 }
@@ -515,7 +526,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                 //command->num_arguments = -1;
 			
-				printF("FUERA");
 
                // return 1;
             } else {
@@ -526,7 +536,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
             }
         }
 		
-		free(frame);
 		freeMemoryCommand();
     }
 

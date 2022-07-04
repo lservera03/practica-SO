@@ -323,6 +323,7 @@ char *MD5Generate(char *pathFoto) {
         return md5Hash;
     }
 
+
     return NULL;
 }
 
