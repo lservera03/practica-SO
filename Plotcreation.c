@@ -313,11 +313,12 @@ char *MD5Generate(char *pathFoto) {
         execl("/bin/md5sum", "md5sum", pathFoto, (char *) 0);
     } else { 
         close(pipefd[1]);
-        char *md5Hash = malloc(32 * sizeof(char));
+        char *md5Hash = malloc(256 * sizeof(char));
 
-        read(pipefd[0], md5Hash, 32);
+        read(pipefd[0], md5Hash, 256);
         close(pipefd[0]);
-
+		
+		strtok(md5Hash, " ");
 
         return md5Hash;
     }

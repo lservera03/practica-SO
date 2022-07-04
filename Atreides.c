@@ -340,6 +340,7 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 
 	char *created_MD5 = MD5Generate(pathFoto);
 
+
     if (strcmp(created_MD5, MD5SUM) == 0) {
         trama = sendResponse(1);
     } else {
