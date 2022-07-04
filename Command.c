@@ -348,6 +348,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                         //Send frame requesting the picture
                         write(atreides_fd, frame, 256);
 
+						free(frame);
+
                         //Wait for response from Atreides
                         read(atreides_fd, frame_string, sizeof(char) * 256);
 
@@ -421,8 +423,10 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                             close(file);
 
+							char *generated_md5 = MD5Generate(pathFoto);
+
                             //check MD5SUM is correct
-                            if (strcmp(MD5Generate(pathFoto), originalMD5) == 0) {
+                            if (strcmp(generated_md5, originalMD5) == 0) {
 
                                 printF("Foto descarregada\n");
 
@@ -445,8 +449,11 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             }
 
                             memset(filename, '\0', strlen(filename));
+
+							free(generated_md5);
                             free(p);
                             free(pathFoto);
+							free(frame);
                         }
 
                     } else {
