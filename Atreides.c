@@ -548,7 +548,7 @@ void send_user_photo(int fd, Frame frame) {
 			printF("La imatge no s'ha rebut correctament!\n");
 		}
 
-
+		free(md5);
     } else { //photo does not exists
 
         printF("No hi ha foto registrada.\n");
@@ -563,9 +563,9 @@ void send_user_photo(int fd, Frame frame) {
     }
 
     printF("Enviada resposta\n");
-    free(path);
+
+	free(path);
     free(filename);
-	free(md5);
 }
 
 
