@@ -180,7 +180,6 @@ char *tramaSearchResponse(char *string) {
 char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     char *trama;
 
-    // todo añadido +1
     char *dades = (char *) malloc(sizeof(char) * (strlen(nameFichero) +1 + sizeof(size) + strlen(MD5SUM) + 2));
 
     if (strlen(nameFichero) > 30) return "1";
@@ -191,7 +190,7 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     sprintf(dades, "%s*%d*%s", nameFichero, size, MD5SUM);
 
     trama = completeDataTrama(trama, dades);
-    // todo free dades en todas las funciones aanteriores posteriores
+
     free(dades);
     return trama;
 }

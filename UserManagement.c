@@ -12,8 +12,6 @@ void readUsers(Users *users) {
     i = 0;
     positions = 1;
 
-    //TODO check if the file exists, if not create
-
     fd = open(USERS_FILE_ROUTE, O_RDONLY, 0666);
 
     if (fd >= 0) {

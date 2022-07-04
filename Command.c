@@ -252,7 +252,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
             if (is_logged) {
 
                 if (command->num_arguments == 2) {
-                    // todo se ha añadido +1 a strlen(serverInfo->directory)
+
                     char *pathFoto = (char *) malloc(
                             sizeof(char) * (strlen(serverInfo->directory) + 1 + strlen(command->arguments[1]) + 2));
 
@@ -280,7 +280,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             write(atreides_fd, frame, 256);
 
                             int photo_fd = open(pathFoto, O_RDONLY);
-                            // todo pathFoto
+
                             free(pathFoto);
 							free(frame);
 
@@ -589,7 +589,7 @@ void createCommand(char string[]) {
     int counter = 0, end = 0, arguments;
 
     command = (Command *) malloc(sizeof(Command));
-// todo he cambiado +1 --> +2 memoria valgrind prueba
+
     copy = (char *) malloc(strlen(string) + 1);
     strcpy(copy, string);
 

@@ -18,8 +18,6 @@ char *read_all_frame_photo();
 void RSI_SIGINT() {
 
 
-    //TODO here free all memory and try to keep system stable
-
 	free(serverInfo);
 
     //save users if there is any
@@ -451,7 +449,6 @@ void logout(Frame frame) {
 
     printF(string_output);
 
-    //TODO all stuff necessary to keep the server stable
 
 	//delete connection from open_connections
 	remove_open_connection(parameters[0]);

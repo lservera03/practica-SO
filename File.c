@@ -60,7 +60,6 @@ int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
 
 
 		//Create directory if not exists
-        // todo he cambiado +1 --> +2 memoria valgrind arreglado
 		create_directory = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + 2));
 
 		sprintf(create_directory, ".%s", serverInfo->directory);
