@@ -192,7 +192,7 @@ void login_user(int fd, Frame frame) {
     //send response
     write(fd, trama, 256);
 
-    printF("Enviada resposta\n\n");
+    printF("Enviada resposta\n");
 
 	free(trama);
 }
@@ -607,6 +607,8 @@ void *run_thread(void *fd_client) {
             default: //UNRECOGNIZED
                 break;
         }
+
+        printF("Esperant connexions...\n");
     }
 
     close(fd);
@@ -662,8 +664,8 @@ int main(int argc, char *argv[]) {
 
 			num_connections = 0;
 
+            printF("Esperant connexions...\n");
             while (1) {
-                printF("Esperant connexions...\n");
                 clientFD = accept(listenFD, (struct sockaddr *) NULL, NULL);
                 if (clientFD > 0) {
                     //Create thread for every client
