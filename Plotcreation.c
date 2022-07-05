@@ -108,7 +108,7 @@ char *tramaConnectionCreated(int id) {
 
 char *tramaPhotoNotFound() {
     char *trama;
-	char *dades = (char *) malloc(sizeof(char) * strlen("FILE NOT FOUND"));
+	char *dades = (char *) malloc(sizeof(char) * strlen("FILE NOT FOUND") + 1);
 
     trama = createOrigin("ATREIDES");
     trama[15] = 'F';
@@ -180,7 +180,7 @@ char *tramaSearchResponse(char *string) {
 char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
     char *trama;
 
-    char *dades = (char *) malloc(sizeof(char) * (strlen(nameFichero) +1 + sizeof(size) + strlen(MD5SUM) + 2));
+    char *dades = (char *) malloc(sizeof(char) * (strlen(nameFichero) + sizeof(size) + strlen(MD5SUM) + 5));
 
     if (strlen(nameFichero) > 30) return "1";
 
@@ -200,7 +200,7 @@ char *tramaSearchPicture(char *nameFichero, int size, char *MD5SUM) {
 
 char *tramaPhotoPicture(char *filename, int size, char *MD5SUM) {
     char *trama;
-    char *dades = (char *) malloc(sizeof(char) * (strlen(filename) + sizeof(size) + strlen(MD5SUM) + 3));
+    char *dades = (char *) malloc(sizeof(char) * (strlen(filename) + sizeof(size) + strlen(MD5SUM) + 5));
 
     if (strlen(filename) > 30) return "1";
 

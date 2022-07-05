@@ -178,7 +178,8 @@ void login_user(int fd, Frame frame) {
 
 		//create new connection
 		create_connection(fd, user, pthread_self());
-
+		
+		free(user.username);
     }
 
 
@@ -193,7 +194,6 @@ void login_user(int fd, Frame frame) {
 
     printF("Enviada resposta\n\n");
 
-	free(user.username);
 	free(trama);
 }
 
