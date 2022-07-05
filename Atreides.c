@@ -97,7 +97,7 @@ void add_user(User user) {
     //Save new user
     users->registered_users[users->last_id].id = user.id;
     strcpy(users->registered_users[users->last_id].postal_code, user.postal_code);
-    users->registered_users[users->last_id].username = (char *) malloc(sizeof(char) * strlen(user.username));
+    users->registered_users[users->last_id].username = (char *) malloc(sizeof(char) * (strlen(user.username) + 1));
     strcpy(users->registered_users[users->last_id].username, user.username);
 
     //Add +1 to the user counter
@@ -170,7 +170,7 @@ void login_user(int fd, Frame frame) {
         id_user = user.id;
 
         strcpy(user.postal_code, parameters[1]);
-        user.username = (char *) malloc(sizeof(char) * strlen(parameters[0]));
+        user.username = (char *) malloc(sizeof(char) * (strlen(parameters[0]) + 1));
         strcpy(user.username, parameters[0]);
 
 
@@ -193,7 +193,7 @@ void login_user(int fd, Frame frame) {
 
     printF("Enviada resposta\n\n");
 
-
+	free(user.username);
 	free(trama);
 }
 
