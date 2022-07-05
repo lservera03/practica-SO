@@ -376,6 +376,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                             strcpy(originalMD5, parameters[2]);
 
+							memset(filename, 0, 30);
 
                             strcpy(filename, parameters[0]);
 
@@ -390,7 +391,9 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                             //create path of the picture
                             pathFoto = (char *) malloc(
-                                    sizeof(char) * (strlen(serverInfo->directory) + strlen(filename) + 2));
+                                    sizeof(char) * (strlen(serverInfo->directory) + strlen(filename) + 3));
+
+							memset(pathFoto, 0, (strlen(serverInfo->directory) + strlen(filename) + 2));
 
                             sprintf(pathFoto, ".%s/%s", serverInfo->directory, filename);
 
@@ -426,7 +429,6 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                                 printF("Foto descarregada\n");
 
-                                memset(frame, 0, strlen(frame));
 
                                 //send  photo frame correct
                                 frame = tramaPhotoCorrect();
@@ -437,14 +439,12 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                                 //send incorrect photo frame
 
-                                memset(frame, 0, strlen(frame));
 
                                 frame = tramaPhotoNotCorrect();
 
                                 write(atreides_fd, frame, 256);
                             }
 
-                            memset(filename, '\0', strlen(filename));
 
 							free(generated_md5);
                             free(p);

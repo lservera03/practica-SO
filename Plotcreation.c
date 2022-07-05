@@ -128,7 +128,7 @@ char *tramaFinishConeixion(char *name, int id_user) {
     int id_length = sprintf(aux, "%d", id_user);
 
 
-    char *dades = (char *) malloc(sizeof(char) * (strlen(name) + id_length + 1));
+    char *dades = (char *) malloc(sizeof(char) * (strlen(name) + id_length + 2));
 
     trama = createOrigin("FREMEN");
     trama[15] = 'Q';
@@ -270,6 +270,8 @@ char *sendDataPhoto(int photo_fd) {
     trama[15] = 'D';
 
 	char buffer[240];
+
+	memset(buffer, 0, 240);
 
 	read(photo_fd, buffer, 240);
 
