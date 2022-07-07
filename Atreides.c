@@ -2,20 +2,17 @@
 
 #define printF(x) write(1, x, strlen(x))
 
+//Global variables
 ServerInfo *serverInfo;
 int listenFD, num_connections;
 Connection *open_connections;
 Users *users;
 
 
-void read_info_photo_send();
-
-User get_user_by_fd(int fd);
-
-char *read_all_frame_photo();
-
+/**
+ * Method that will execute when Control+C is pressed.
+ */
 void RSI_SIGINT() {
-
 
     free(serverInfo);
 
@@ -56,42 +53,15 @@ void RSI_SIGINT() {
 
 }
 
-/** MEMORIA PARA HACER FREE
- * msg
- * users->registered_users[users->last_id].username
- * open_connections
- *  user.username
- *  serverInfo
- *  users
+
+/**
+ * Method that allows to create and save a new user in memory.
+ * @param user Struct user containing the info of the new user to save.
  */
-
-
-char *readLine(int fd, char delimiter) {
-    char *msg = (char *) malloc(1);
-    char current;
-    int i = 0;
-    int len = 0;
-
-    while ((len += read(fd, &current, 1)) > 0) {
-        msg[i] = current;
-        msg = (char *) realloc(msg, ++i + 1);
-        if (current == delimiter) {
-            break;
-        }
-    }
-    msg[i - 1] = '\0';
-
-
-    return msg;
-}
-
-
 void add_user(User user) {
-
 
     //Make space for the new user
     users->registered_users = (User *) realloc(users->registered_users, (((users->last_id + 1)) * sizeof(User)));
-
 
     //Save new user
     users->registered_users[users->last_id].id = user.id;
@@ -105,6 +75,12 @@ void add_user(User user) {
 }
 
 
+/**
+ * Method that allows to create and save a new user connection to have always in memory a list of the connected users.
+ * @param fd Integer of the file descriptor of the socket connection with the user.
+ * @param user Struct user with the info of the user connected.
+ * @param thread Thread that listens to the user's petitions.
+ */
 void create_connection(int fd, User user, pthread_t thread) {
 
     //create space for new connection
@@ -123,10 +99,14 @@ void create_connection(int fd, User user, pthread_t thread) {
     open_connections[num_connections].thread = thread;
 
     num_connections++;
-
 }
 
 
+/**
+ * Method that allows to login a new user connected.
+ * @param fd Integer of the file descriptor of the open connection through sockets.
+ * @param frame Struct frame containing the info of the frame sent.
+ */
 void login_user(int fd, Frame frame) {
     int exit = 0, found = 0, i = 0, id_user;
     char *trama;
@@ -151,7 +131,6 @@ void login_user(int fd, Frame frame) {
         if (strcmp(users->registered_users[i].username, parameters[0]) == 0) { //The user exists
 
             id_user = users->registered_users[i].id;
-
 
             create_connection(fd, users->registered_users[i], pthread_self());
 
@@ -181,7 +160,6 @@ void login_user(int fd, Frame frame) {
         free(user.username);
     }
 
-
     trama = tramaConnectionCreated(id_user);
 
     sprintf(string_output, "Assignat a ID %d\n", id_user);
@@ -197,6 +175,11 @@ void login_user(int fd, Frame frame) {
 }
 
 
+/**
+ * Method that allows to search users by its postal code and send the response back.
+ * @param fd File descriptor of the open socket.
+ * @param frame Struct frame containing the info of the frame sent.
+ */
 void search_users(int fd, Frame frame) {
     char *parameters[3];
     char string_output[100];
@@ -206,8 +189,9 @@ void search_users(int fd, Frame frame) {
     char *trama;
 
 
-    memset(aux, '\0', 100);
-    memset(data, '\0', 240);
+    //clean string in order to not use junk.
+    memset(aux, 0, 100);
+    memset(data, 0, 240);
 
     //split frame.data to get parameters (postal_code)
     char *p = strtok(frame.data, "*");
@@ -266,11 +250,10 @@ void search_users(int fd, Frame frame) {
 
 
             //Clean aux string
-            memset(aux, '0', 100);
-
+            memset(aux, 0, 100);
 
             //Clean string output
-            memset(string_output, '\0', strlen(string_output));
+            memset(string_output, 0, strlen(string_output));
         }
     }
 
@@ -286,6 +269,12 @@ void search_users(int fd, Frame frame) {
 }
 
 
+/**
+ * Method that allows to receive a picture sent by Fremen with the SEND command.
+ * @param size2 String containing the size of the picture to receive.
+ * @param fd File descriptor of the open socket connection.
+ * @param MD5SUM String containing the MD5SUM of the picture to receive.
+ */
 void data_photo_receive(char *size2, int fd, char *MD5SUM) {
     int file_id = 0;
     char frame_string[256];
@@ -312,12 +301,14 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 
     file_id = open(pathFoto, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
+    //Calculate number of frames to send according to file size
     if ((size % 240) != 0) {
         number_frame = (size / 240) + 1;
     } else {
         number_frame = (size / 240);
     }
 
+    //Send all necessary frames
     for (int i = 0; i < number_frame; i++) {
 
         read(fd, frame_string, 256);
@@ -339,7 +330,7 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 
     char *created_MD5 = MD5Generate(pathFoto);
 
-
+    //Check if the picture is received correctly according to the MD5SUM
     if (strcmp(created_MD5, MD5SUM) == 0) {
         trama = sendImageResponseAtreides(1);
     } else {
@@ -356,6 +347,11 @@ void data_photo_receive(char *size2, int fd, char *MD5SUM) {
 }
 
 
+/**
+ * Function that allows to get the user by the file descriptor associated to him.
+ * @param fd File descriptor of the open socket connection.
+ * @return Struct user with the user found.
+ */
 User get_user_by_fd(int fd) {
     User aux;
 
@@ -372,6 +368,11 @@ User get_user_by_fd(int fd) {
 }
 
 
+/**
+ * Method that allows to process the SEND request from Fremen.
+ * @param frame Struct frame containing the info of the frame sent.
+ * @param fd File descriptor of the open socket connection.
+ */
 void read_info_photo_send(Frame frame, int fd) {
     char *parameters[3];
     int i = 0;
@@ -394,12 +395,16 @@ void read_info_photo_send(Frame frame, int fd) {
 
     printF(string_output);
 
-    memset(string_output, '\0', strlen(string_output));
+    memset(string_output, 0, strlen(string_output));
 
     data_photo_receive(parameters[1], fd, parameters[2]);
 }
 
 
+/**
+ * Method that allows to remove a user connection of the updated connections list.
+ * @param username String containing the username to disconnect.
+ */
 void remove_open_connection(char *username) {
     int position = -1;
 
@@ -430,6 +435,10 @@ void remove_open_connection(char *username) {
 }
 
 
+/**
+ * Method that allows to disconnect a user from the open connections to Atreides.
+ * @param frame Struct frame containing the info of the frame sent.
+ */
 void logout(Frame frame) {
     char *parameters[2];
     char string_output[100];
@@ -464,6 +473,11 @@ void logout(Frame frame) {
 }
 
 
+/**
+ * Method that allows to process the PHOTO request from Fremen to send a user's picture by its ID.
+ * @param fd File descriptor of the open socket connection.
+ * @param frame Struct frame containing the info of the frame sent.
+ */
 void send_user_photo(int fd, Frame frame) {
     char string_output[100], frame_string[256];
     char *path, *trama = NULL, *filename, *md5;
@@ -478,7 +492,6 @@ void send_user_photo(int fd, Frame frame) {
     sprintf(filename, "%s.jpg", aux);
 
     id_user_photo = atoi(frame.data);
-
 
     //get user by the fd
     user = get_user_by_fd(fd);
@@ -506,8 +519,6 @@ void send_user_photo(int fd, Frame frame) {
         strcpy(md5_send, md5);
 
         trama = tramaPhotoPicture(filename, size, md5_send);
-
-        //TODO check trama correcta (1)
 
         write(fd, trama, 256);
 
@@ -573,6 +584,11 @@ void send_user_photo(int fd, Frame frame) {
 }
 
 
+/**
+ * Method that will run as a thread to listen the petitions of a user.
+ * @param fd_client File descriptor of the open socket connection.
+ * @return void*
+ */
 void *run_thread(void *fd_client) {
     int exit = 0;
     int fd = *((int *) fd_client);
@@ -601,8 +617,6 @@ void *run_thread(void *fd_client) {
             case 'Q': //LOGOUT
                 logout(frame);
                 exit = 1;
-                break;
-            default: //UNRECOGNIZED
                 break;
         }
 
