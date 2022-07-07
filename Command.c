@@ -271,6 +271,8 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                     if (access(pathFoto, F_OK) != 0) { //Check if the picture exists.
                         printF("Error: La imagen no existe\n");
 
+						free(pathFoto);
+
                     } else {
                         size = GetSizeFile(pathFoto);
 

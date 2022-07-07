@@ -61,7 +61,11 @@ void RSI_SIGINT() {
 void add_user(User user) {
 
     //Make space for the new user
-    users->registered_users = (User *) realloc(users->registered_users, (((users->last_id + 1)) * sizeof(User)));
+	if(users->last_id == 0){ //If there is not any user previously saved
+		users->registered_users = (User *) malloc(sizeof(User));
+	} else {
+    	users->registered_users = (User *) realloc(users->registered_users, ((users->last_id + 1) * sizeof(User)));
+	}
 
     //Save new user
     users->registered_users[users->last_id].id = user.id;
