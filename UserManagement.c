@@ -3,6 +3,10 @@
 #define printF(x) write(1, x, strlen(x))
 
 
+/**
+ * Method that allows to read the users already registered from a file and load them into memory.
+ * @param users Pointer to a struct Users to save the registered users in memory.
+ */
 void readUsers(Users *users) {
     int fd, i, positions, final, num_users = 0, counter = 0;
     char character;
@@ -25,7 +29,7 @@ void readUsers(Users *users) {
 
                 buffer[i] = '\0';
 
-                if (num_users == 0) {
+                if (num_users == 0) { //If its the first line we allocate memory for the users.
                     num_users = atoi(buffer);
 
                     users->last_id = num_users;
@@ -58,13 +62,14 @@ void readUsers(Users *users) {
 
                     users->registered_users[counter].id = user.id;
                     strcpy(users->registered_users[counter].postal_code, user.postal_code);
-					users->registered_users[counter].username = (char *) malloc(sizeof(char) * strlen(user.username) + 1);
+                    users->registered_users[counter].username = (char *) malloc(
+                            sizeof(char) * strlen(user.username) + 1);
                     strcpy(users->registered_users[counter].username, user.username);
 
 
                     counter++;
                     positions = 1;
-					free(user.username);
+                    free(user.username);
                 }
 
 
@@ -91,10 +96,12 @@ void readUsers(Users *users) {
 
 }
 
-
-
-void writeUsers(Users *users){
-	char write_string[100];
+/**
+ * Method that allows to write into a file all the registered users that were saved in memory.
+ * @param users Pointer to a struct Users were the registered users are saved in memory.
+ */
+void writeUsers(Users *users) {
+    char write_string[100];
     int write_fd;
 
     //Open file
@@ -108,15 +115,16 @@ void writeUsers(Users *users){
         sprintf(write_string, "%d\n", users->last_id);
         write(write_fd, write_string, sizeof(char) * strlen(write_string));
 
-		//Write every user into the file
+        //Write every user into the file
         for (int i = 0; i < users->last_id; i++) {
-            sprintf(write_string, "%d,%s,%s\n", users->registered_users[i].id, users->registered_users[i].username, users->registered_users[i].postal_code);
+            sprintf(write_string, "%d,%s,%s\n", users->registered_users[i].id, users->registered_users[i].username,
+                    users->registered_users[i].postal_code);
             write(write_fd, write_string, sizeof(char) * strlen(write_string));
         }
 
         close(write_fd);
     }
-	
+
 
 }
 

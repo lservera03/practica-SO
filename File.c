@@ -1,12 +1,19 @@
 #include "File.h"
 
 
+/**
+ * Function that allows to read configuration files not only of Fremen but Atreides.
+ * @param file String containing the configuration file name.
+ * @param serverInfo Struct ServerInfo to fill with the information read.
+ * @param config Integer to know which configuration file we are reading.
+ * @return Integer containing if the lecture has gone correctly.
+ */
 int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
     int fd, positions, final, correct;
     int i = 0, first = 1;
     char character;
     char *buffer = NULL;
-	char *create_directory;
+    char *create_directory;
 
 
     positions = 1;
@@ -29,7 +36,7 @@ int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
                 if (config == ATREIDES_CONFIG && first == 1) { //In case we are reading config file of Atreides
                     positions++;
                     serverInfo->seconds = -1;
-					first = 0;
+                    first = 0;
                 }
 
                 switch (positions) {
@@ -59,12 +66,12 @@ int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
         } while (final > 0);
 
 
-		//Create directory if not exists
-		create_directory = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + 2));
+        //Create directory if not exists
+        create_directory = (char *) malloc(sizeof(char) * (strlen(serverInfo->directory) + 2));
 
-		sprintf(create_directory, ".%s", serverInfo->directory);
+        sprintf(create_directory, ".%s", serverInfo->directory);
 
-		mkdir(create_directory, 0700);
+        mkdir(create_directory, 0700);
 
         free(create_directory);
 
@@ -76,6 +83,8 @@ int readConfigFile(char file[50], ServerInfo *serverInfo, int config) {
 
         correct = 0;
     }
+
     free(buffer);
+
     return correct;
 }

@@ -11,20 +11,24 @@
 
 #define printF(x) write(1, x, strlen(x))
 
+//Global variables
 ServerInfo *serverInfo;
 char *buffer;
 
+/**
+ * Method that will execute when Control+C is pressed.
+ */
 void end() {
 
-	free(serverInfo);
+    free(serverInfo);
 
-	free(buffer);
+    free(buffer);
 
-	RSI_SIGINT();
-	
+    RSI_SIGINT();
+
 
     //Let the system handle the SIGINT by default
-	signal(SIGINT, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
     raise(SIGINT);
 }
 
@@ -50,7 +54,7 @@ int main(int argc, char *argv[]) {
             write(STDOUT_FILENO, "Benvingut a Fremen\n", sizeof(char) * strlen("Benvingut a Fremen\n"));
 
             do {
-				buffer = NULL;
+                buffer = NULL;
                 write(STDOUT_FILENO, "$ ", sizeof(char) * strlen("$ "));
                 while (character != '\n') {
                     read(STDIN_FILENO, &character, sizeof(char));
@@ -70,15 +74,12 @@ int main(int argc, char *argv[]) {
                 i = 0;
                 buffer[0] = '\0';
                 character = ' ';
-				
-				free(buffer);
+
+                free(buffer);
 
             } while (!exit);
         }
 
-		
-
-        //free(serverInfo);
         raise(SIGINT);
 
     } else if (argc < 2) {

@@ -1,13 +1,18 @@
 #include "Frame.h"
 
 
+/**
+ * Function that allows to create a struct Frame from a string.
+ * @param string String containing the string frame.
+ * @return Frame with the information organized.
+ */
 Frame createFrameFromString(char string[256]) {
     int i;
     Frame frame;
 
-    //Init strings with \0
-    memset(frame.origin, '\0', sizeof(frame.origin));
-    memset(frame.data, '\0', sizeof(frame.data));
+    //Init strings with 0 to avoid saving junk.
+    memset(frame.origin, 0, sizeof(frame.origin));
+    memset(frame.data, 0, sizeof(frame.data));
 
 
     i = 0;

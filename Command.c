@@ -1,15 +1,17 @@
 #include "Command.h"
-#include "stdio.h"
-#include "unistd.h"
 
 #define printF(x) write(1, x, strlen(x))
 
-
+//Global variables
 Command *command;
 int atreides_fd, is_logged = 0, id_user = -1;
 ServerInfo *server_info;
 char *username;
 
+
+/**
+ * Method that will execute when Control+C is pressed.
+ */
 void RSI_SIGINT() {
 
 
@@ -27,17 +29,18 @@ void RSI_SIGINT() {
 
     free(username);
 
-	if(command != NULL){
-		freeMemoryCommand();
-	}
+    if (command != NULL) {
+        freeMemoryCommand();
+    }
 
     close(atreides_fd);
-
-
 
 }
 
 
+/**
+ * Method that allows to create and configurate the socket connection with Atreides.
+ */
 void create_connection_atreides() {
     struct sockaddr_in s_addr;
 
@@ -62,6 +65,13 @@ void create_connection_atreides() {
 
 }
 
+
+/**
+ * Function that allows to execute Fremen's functionalities.
+ * @param string String containing the command introduced by the user.
+ * @param serverInfo Pointer to struct ServerInfo containing the configuration info.
+ * @return Integer to control the execution of the program.
+ */
 int executeCommand(char string[], ServerInfo *serverInfo) {
     char upper[50];
     char *frame;
@@ -113,7 +123,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                                 frame = tramaStartConexion(command->arguments[1], command->arguments[2]);
 
-                                //Enviar trama solicitant connexió
+                                //Send frame requesting connection
                                 write(atreides_fd, frame, 256);
 
                                 //Wait for response
@@ -133,7 +143,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                                 is_logged = 1;
 
-								free(frame);
+                                free(frame);
                             } else {
                                 printF("ERROR: NO s'ha pogut connectar amb Atreides\n");
                             }
@@ -189,7 +199,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                             num_users_found = atoi(p);
 
-                            memset(string_output, '\0', 256);
+                            memset(string_output, 0, 100);
 
                             sprintf(string_output, "Hi han %d persones humanes a %s\n", num_users_found,
                                     command->arguments[1]);
@@ -218,7 +228,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                     p = strtok(NULL, "*");
                                 }
 
-                                if (counter == num_users_found) {
+                                if (counter == num_users_found) { //Check if we have read all the users.
                                     end = 1;
                                 } else {
                                     read(atreides_fd, frame_string, sizeof(char) * 256);
@@ -233,7 +243,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                         }
 
-						free(frame);
+                        free(frame);
                     } else {
                         printF("ERROR: El id ha de ser un numero\n");
                     }
@@ -258,19 +268,18 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                     sprintf(pathFoto, ".%s/%s", serverInfo->directory, command->arguments[1]);
 
-                    if (access(pathFoto, F_OK) != 0) {
+                    if (access(pathFoto, F_OK) != 0) { //Check if the picture exists.
                         printF("Error: La imagen no existe\n");
 
                     } else {
                         size = GetSizeFile(pathFoto);
 
-						char *generated_md5 = MD5Generate(pathFoto);
+                        char *generated_md5 = MD5Generate(pathFoto);
 
-                        frame = tramaSearchPicture(command->arguments[1], size, generated_md5);
+                        frame = tramaSendPicture(command->arguments[1], size, generated_md5);
 
-						
-						free(generated_md5);
-					
+                        free(generated_md5);
+
                         if (strcmp(frame, "1") == 0) {
                             write(STDOUT_FILENO, "ERROR: filename too big\n",
                                   sizeof(char) * strlen("ERROR: filename too big\n"));
@@ -282,8 +291,9 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             int photo_fd = open(pathFoto, O_RDONLY);
 
                             free(pathFoto);
-							free(frame);
+                            free(frame);
 
+                            //Calculate how many frames we need to send depending on size file.
                             if ((size % 240) != 0) {
                                 number_frame = (size / 240) + 1;
                             } else {
@@ -295,11 +305,12 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                 frame = sendDataPhoto(photo_fd);
                                 write(atreides_fd, frame, 256);
 
-								free(frame);
+                                free(frame);
 
                             }
                             close(photo_fd);
 
+                            //Read response
                             read(atreides_fd, frame_string, 256);
                             frame_struct = createFrameFromString(frame_string);
 
@@ -337,14 +348,14 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                     strtol(ptr, &ptr, 10);
 
-                    if (*ptr == '\0') {
+                    if (*ptr == '\0') { //Check if the id is a number
 
                         frame = tramaPhotoRequest(command->arguments[1]);
 
                         //Send frame requesting the picture
                         write(atreides_fd, frame, 256);
 
-						free(frame);
+                        free(frame);
 
                         //Wait for response from Atreides
                         read(atreides_fd, frame_string, sizeof(char) * 256);
@@ -357,15 +368,14 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                         if (strcmp(frame_struct.data, "FILE NOT FOUND") == 0) {
                             printF("No hi ha foto registrada.\n");
                         } else {
-
-
-                            //Split frame.data to get photo info
-                            char *p = strtok(frame_struct.data, "*");
                             char *parameters[3];
                             char *pathFoto;
                             char originalMD5[32], filename[30];
                             int i = 0, size, num_frames, file, last_frame_short = 0;
 
+
+                            //Split frame.data to get photo info
+                            char *p = strtok(frame_struct.data, "*");
 
                             while (p != NULL) {
                                 parameters[i++] = p;
@@ -376,12 +386,12 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                             strcpy(originalMD5, parameters[2]);
 
-							memset(filename, 0, 30);
+                            memset(filename, 0, 30);
 
                             strcpy(filename, parameters[0]);
 
 
-                            //calculate number of frames
+                            //calculate number of frames to receive
                             num_frames = size / 240;
 
                             if ((num_frames % 240) != 0) {
@@ -393,7 +403,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                             pathFoto = (char *) malloc(
                                     sizeof(char) * (strlen(serverInfo->directory) + strlen(filename) + 3));
 
-							memset(pathFoto, 0, (strlen(serverInfo->directory) + strlen(filename) + 2));
+                            memset(pathFoto, 0, (strlen(serverInfo->directory) + strlen(filename) + 2));
 
                             sprintf(pathFoto, ".%s/%s", serverInfo->directory, filename);
 
@@ -422,7 +432,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                             close(file);
 
-							char *generated_md5 = MD5Generate(pathFoto);
+                            char *generated_md5 = MD5Generate(pathFoto);
 
                             //check MD5SUM is correct
                             if (strcmp(generated_md5, originalMD5) == 0) {
@@ -438,18 +448,17 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                                 printF("Ha ocorregut un error durant la descarrega de la foto\n");
 
                                 //send incorrect photo frame
-
-
                                 frame = tramaPhotoNotCorrect();
 
                                 write(atreides_fd, frame, 256);
                             }
 
 
-							free(generated_md5);
+                            //Clean memory used
+                            free(generated_md5);
                             free(p);
                             free(pathFoto);
-							free(frame);
+                            free(frame);
                         }
 
                     } else {
@@ -468,7 +477,7 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
         } else if (strcmp(upper, "LOGOUT") == 0) {
             if (command->num_arguments == 1) {
 
-                //CHeck if the user is logged in
+                //Check if the user is logged in
                 if (is_logged) {
 
 
@@ -485,9 +494,9 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
 
                     is_logged = 0;
 
-                   	exit = 1;
+                    exit = 1;
 
-					free(frame);
+                    free(frame);
                 } else {
                     printF("Has d'estar loguejat per executar aquesta comanda!\n");
                 }
@@ -497,18 +506,16 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                       sizeof(char) * strlen("Comanda KO. Massa paràmetres\n"));
             }
         } else { // Comando por defecto de Linux
-            int fill; //pid;
+            int fill;
 
 
 
             //Fork para ejecutar el comando de Linux
             fill = fork();
             if (fill > 0) {
-                //pid = getpid();
                 wait(NULL);
                 freeMemoryCommand();
-           	} else if (fill == 0) {
-
+            } else if (fill == 0) {
 
                 char *args[command->num_arguments + 1];
 
@@ -521,33 +528,28 @@ int executeCommand(char string[], ServerInfo *serverInfo) {
                 //Execute command and check if it's correct
                 if (execvp(args[0], args) < 0) {
                     write(1, "ERROR al ejecutar el comando\n", sizeof(char) * strlen("ERROR al ejecutar el comando\n"));
-					_exit(1); //necessary because when execvp fails the process does not finish
-               	}
+                    _exit(1); //necessary because when execvp fails the process does not finish
+                }
 
-
-                //freeMemoryCommand();
-
-                //command->num_arguments = -1;
-			
-
-               // return 1;
             } else {
-
                 freeMemoryCommand();
                 write(1, "ERROR al crear el fork\n", sizeof("ERROR al crear el fork\n"));
 
             }
         }
-		
-		freeMemoryCommand();
+
+        freeMemoryCommand();
     }
 
-	
 
     return exit;
 }
 
 
+/**
+ * Method that allows to remove the '\n' character from a string.
+ * @param string String where the '\n' character needs to be removed from.
+ */
 void removeNewLine(char *string) {
     char character;
     int i = 0;
@@ -563,6 +565,11 @@ void removeNewLine(char *string) {
 }
 
 
+/**
+ * Function that allows to count the arguments of a command.
+ * @param string String containing the command introduced by the user.
+ * @return Integer containing the number of arguments.
+ */
 int countArguments(char string[]) {
     char *copy, *splited;
     int counter = 0;
@@ -578,12 +585,16 @@ int countArguments(char string[]) {
         counter++;
     }
 
-	free(copy);
+    free(copy);
 
     return counter;
 }
 
 
+/**
+ * Method that allows to create the struct Command from the commmand string introduced by the user.
+ * @param string String containing the command introduced by the user.
+ */
 void createCommand(char string[]) {
     char *splited, *copy;
     int counter = 0, end = 0, arguments;
@@ -618,10 +629,13 @@ void createCommand(char string[]) {
 
     command->num_arguments = arguments;
 
-	free(copy);
+    free(copy);
 }
 
 
+/**
+ * Method that allows to free all the memory used for the command.
+ */
 void freeMemoryCommand() {
 
     if (command != NULL) {
@@ -637,30 +651,8 @@ void freeMemoryCommand() {
         free(command);
     }
 
-	command = NULL;
+    command = NULL;
 
 }
-
-
-int checkIfIsNumber(char *string[]) {
-    char character;
-    int i = 0;
-
-    printF(*string);
-
-    do {
-        character = *string[i];
-        if (character < 48 || character > 57) {
-            return 0;
-        }
-        i++;
-    } while (character != '\n' && character != '\0');
-
-
-    return 1;
-}
-
-
-
 
 
